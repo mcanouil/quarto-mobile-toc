@@ -66,6 +66,8 @@ const assertions = {
     tap("pill background defaults to the body background", bg === bodyBg, `${bg} vs ${bodyBg}`);
     const upper = await pillStyle(page, "textTransform");
     tap("pill text is not upper-cased", upper === "none", upper);
+    const shadow = await pillStyle(page, "boxShadow");
+    tap("pill shadow defaults to the built-in shadow", shadow === "rgba(0, 0, 0, 0.15) 0px 2px 8px 0px", shadow);
 
     await page.emulateMedia({ reducedMotion: "reduce" });
     const duration = await page.locator(".mobile-toc-sheet").evaluate((el) => getComputedStyle(el).transitionDuration);
@@ -126,6 +128,13 @@ const assertions = {
     tap("pill background follows --mobile-toc-bg", bg === "rgb(1, 2, 3)", bg);
     const box = await pillBox(page);
     tap("pill right gap follows --mobile-toc-inset-inline", Math.abs(box.vw - box.right - 40) < 0.5, JSON.stringify(box));
+    const shadow = await pillStyle(page, "boxShadow");
+    tap("pill shadow follows --mobile-toc-shadow", shadow === "rgb(1, 2, 3) 1px 2px 3px 0px", shadow);
+    await openSheet(page);
+    const sheetShadow = await page.locator(".mobile-toc-sheet").evaluate((el) => getComputedStyle(el).boxShadow);
+    tap("sheet shadow follows --mobile-toc-sheet-shadow", sheetShadow === "rgb(4, 5, 6) 0px -1px 2px 0px", sheetShadow);
+    const backdrop = await page.locator(".mobile-toc-sheet").evaluate((el) => getComputedStyle(el, "::backdrop").backgroundColor);
+    tap("backdrop follows --mobile-toc-backdrop", backdrop === "rgb(7, 8, 9)", backdrop);
   },
 
   async "dark-fallback"(page) {

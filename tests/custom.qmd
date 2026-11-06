@@ -9,6 +9,9 @@ format:
             :root {
               --mobile-toc-bg: rgb(1, 2, 3);
               --mobile-toc-inset-inline: 40px;
+              --mobile-toc-shadow: 1px 2px 3px rgb(1, 2, 3);
+              --mobile-toc-sheet-shadow: 0 -1px 2px rgb(4, 5, 6);
+              --mobile-toc-backdrop: rgb(7, 8, 9);
             }
           </style>
 _quarto:

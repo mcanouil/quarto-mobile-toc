@@ -53,6 +53,9 @@ format:
 | `--mobile-toc-active-bg` | 15% of the accent colour mixed into the background | Background of the current section in the sheet. |
 | `--mobile-toc-accent` | `--bs-link-color` | Colour of the bar beside the current section and of the keyboard focus ring. |
 | `--mobile-toc-radius` | `--bs-border-radius-lg` | Radius of the top corners of the sheet. |
+| `--mobile-toc-shadow` | `0 2px 8px rgba(0, 0, 0, 0.15)` | Shadow of the button. |
+| `--mobile-toc-sheet-shadow` | `0 -4px 18px rgba(0, 0, 0, 0.18)` | Shadow of the sheet. |
+| `--mobile-toc-backdrop` | `rgba(0, 0, 0, 0.45)` | Colour of the layer behind the open sheet. |
 | `--mobile-toc-inset-inline` | `1rem` | Distance from the button to the side edge of the screen. |
 | `--mobile-toc-inset-block` | `1rem` | Distance from the button to the bottom edge of the screen. |
 
