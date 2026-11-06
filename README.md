@@ -10,7 +10,7 @@ This Quarto extension adds a button in the corner of the page that opens the tab
 ## Installation
 
 ```bash
-quarto add mcanouil/quarto-mobile-toc@0.1.0
+quarto add mcanouil/quarto-mobile-toc@0.2.0
 ```
 
 This will install the extension under the `_extensions` subdirectory.
