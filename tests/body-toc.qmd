@@ -1,0 +1,24 @@
+---
+title: "Body TOC"
+format: html
+toc: true
+toc-location: body
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" body-toc
+---
+
+## One
+
+Text.
+
+## Two
+
+Text.
+
+### Three
+
+Text.
+

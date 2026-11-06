@@ -1,0 +1,12 @@
+/.quarto/
+**/*.quarto_ipynb
+
+# Website fixture: the extension is copied in by _checks/projects.sh.
+website/_extensions/
+website/_site/
+website/.quarto/
+book/_extensions/
+book/_book/
+book/.quarto/
+_extensions/local/
+book/.gitignore

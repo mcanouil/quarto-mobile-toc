@@ -1,0 +1,19 @@
+---
+title: "Slides"
+format: revealjs
+toc: true
+_quarto:
+  tests:
+    revealjs:
+      ensureFileRegexMatches:
+        - []
+        - ['mobile-toc-options']
+---
+
+## First slide
+
+Lorem ipsum dolor sit amet.
+
+## Second slide
+
+Ut enim ad minim veniam.

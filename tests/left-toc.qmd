@@ -1,0 +1,24 @@
+---
+title: "Left TOC"
+format: html
+toc: true
+toc-location: left
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" left-toc
+---
+
+## One
+
+Text.
+
+## Two
+
+Text.
+
+### Three
+
+Text.
+

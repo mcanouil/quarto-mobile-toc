@@ -1,0 +1,13 @@
+_site/
+*.html
+*_files/
+.quarto/
+**/*.quarto_ipynb
+/.luarc.json
+.DS_Store
+
+# The documentation website keeps its own .gitignore for the files it generates.
+
+# Test harness.
+tests/node_modules/
+tests/_results/

@@ -1,0 +1,190 @@
+/**
+ * Mobile TOC - Focus check
+ * Check keyboard operation, focus return and link activation of the sheet.
+ *
+ * @license MIT
+ * @copyright 2026 Mickaël Canouil
+ * @author Mickaël Canouil
+ */
+
+import { openPage, tap, finish } from "./lib.mjs";
+
+const [, , htmlPath, fixture] = process.argv;
+if (!htmlPath || !fixture) {
+  console.error("Usage: node focus-check.mjs <html-file> <fixture-name>");
+  process.exit(2);
+}
+
+const pillName = "Table of contents";
+
+const frames = (page, count) =>
+  page.evaluate(
+    (n) =>
+      new Promise((done) => {
+        const step = (left) => (left === 0 ? done() : requestAnimationFrame(() => step(left - 1)));
+        step(n);
+      }),
+    count,
+  );
+
+const isOpen = (page) => page.evaluate(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+const focusIn = (page, selector) =>
+  page.evaluate((sel) => !!document.activeElement?.closest(sel), selector);
+const focusOnPill = (page) => page.evaluate(() => document.activeElement?.classList.contains("mobile-toc-pill"));
+const pillExpanded = async (page) => {
+  const session = await page.context().newCDPSession(page);
+  const { nodes } = await session.send("Accessibility.getFullAXTree");
+  await session.detach();
+  const pill = nodes.find((node) => node.role?.value === "button" && node.name?.value === pillName);
+  return pill?.properties.find((p) => p.name === "expanded")?.value.value === true;
+};
+
+const openWithKeyboard = async (page) => {
+  await page.locator(".mobile-toc-pill").focus();
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+};
+
+const tabUntil = async (page, predicate, arg, limit = 12) => {
+  for (let i = 0; i < limit; i += 1) {
+    await page.keyboard.press("Tab");
+    if (await page.evaluate(predicate, arg)) return true;
+  }
+  return false;
+};
+
+const tabToThirdLink = async (page) => {
+  await tabUntil(page, () => document.activeElement?.classList.contains("mobile-toc-close"));
+  for (let i = 0; i < 3; i += 1) await page.keyboard.press("Tab");
+};
+
+const assertions = {
+  async focus(page) {
+    await openWithKeyboard(page);
+    tap("sheet is open after Enter on the pill", await isOpen(page));
+    tap("pill is expanded in the accessibility tree", await pillExpanded(page));
+
+    await page.keyboard.press("Tab");
+    tap("Tab moves focus into the sheet", await focusIn(page, "#mobile-toc-sheet"));
+
+    await page.keyboard.press("Escape");
+    tap("Escape closes the sheet", !(await isOpen(page)));
+    tap("Escape returns focus to the pill", await focusOnPill(page));
+    tap("pill is collapsed in the accessibility tree", !(await pillExpanded(page)));
+
+    await openWithKeyboard(page);
+    const reached = await tabUntil(page, () => document.activeElement?.classList.contains("mobile-toc-close"));
+    tap("Tab reaches the close button", reached);
+    await page.keyboard.press("Enter");
+    tap("Enter on the close button closes the sheet", !(await isOpen(page)));
+    tap("close button returns focus to the pill", await focusOnPill(page));
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await openWithKeyboard(page);
+    await tabToThirdLink(page);
+    const target = await page.evaluate(() => document.activeElement.hash);
+    const belowFold = await page.evaluate(
+      (hash) => document.querySelector(hash).getBoundingClientRect().top > window.innerHeight,
+      target,
+    );
+    tap("link target is below the fold before activation", belowFold);
+    await page.keyboard.press("Enter");
+    await frames(page, 3);
+    const landed = await page.evaluate(() => ({
+      open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+      hash: location.hash,
+      tag: document.activeElement?.tagName,
+      sectionId: document.activeElement?.closest("section")?.id,
+    }));
+    tap("Enter on a link closes the sheet", !landed.open);
+    tap("location.hash is the link target", landed.hash === target, `${landed.hash} vs ${target}`);
+    tap(
+      "focus is on the target heading, not its section",
+      /^H[1-6]$/.test(landed.tag) && `#${landed.sectionId}` === target,
+      `${landed.tag} in ${landed.sectionId}`,
+    );
+    await page.evaluate(() => {
+      window.focusedHeading = document.activeElement;
+    });
+    await page.keyboard.press("Tab");
+    const follows = await page.evaluate((hash) => {
+      const heading = window.focusedHeading;
+      const active = document.activeElement;
+      return {
+        after: !!(heading.compareDocumentPosition(active) & Node.DOCUMENT_POSITION_FOLLOWING),
+        pill: active.classList.contains("mobile-toc-pill"),
+      };
+    }, target);
+    tap("heading loses the added tabindex after blur", !(await page.evaluate(() => window.focusedHeading.hasAttribute("tabindex"))));
+    tap("Tab after the heading reaches a later element, not the pill", follows.after && !follows.pill);
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await openWithKeyboard(page);
+    await tabToThirdLink(page);
+    const sameHref = await page.evaluate(() => document.activeElement.getAttribute("href"));
+    await page.evaluate(() => {
+      document.querySelectorAll("#TOC a").forEach((a) => a.append(document.createElement("span")));
+    });
+    await frames(page, 2);
+    const kept = await page.evaluate(() => {
+      const active = document.activeElement;
+      return { inSheet: !!active?.closest("#mobile-toc-sheet"), href: active?.getAttribute?.("href") };
+    });
+    tap(
+      "re-clone keeps focus on the sheet link with the same href",
+      kept.inSheet && kept.href === sameHref,
+      `${kept.inSheet} ${kept.href} vs ${sameHref}`,
+    );
+    await page.keyboard.press("Escape");
+
+    for (const href of ["#does-not-exist", "#%E0%A4%A"]) {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await openWithKeyboard(page);
+      await page.evaluate((h) => {
+        const link = document.createElement("a");
+        link.id = "probe-link";
+        link.href = h;
+        link.textContent = "probe";
+        document.querySelector("#mobile-toc-sheet").append(link);
+        link.focus();
+      }, href);
+      await page.keyboard.press("Enter");
+      await frames(page, 3);
+      const missing = await page.evaluate(() => ({
+        open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+        tag: document.activeElement?.tagName,
+      }));
+      tap(`link to ${href} closes the sheet`, !missing.open);
+      tap(`link to ${href} leaves focus off any heading`, !/^H[1-6]$/.test(missing.tag), missing.tag);
+      await page.evaluate(() => document.getElementById("probe-link")?.remove());
+    }
+    tap("no page error was raised", errors.length === 0, errors.join("; "));
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.locator(".mobile-toc-pill").tap();
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+    const touchHref = await page.locator("#mobile-toc-sheet a:visible").nth(2).evaluate((a) => a.hash);
+    await page.locator("#mobile-toc-sheet a:visible").nth(2).tap();
+    await frames(page, 5);
+    const touched = await page.evaluate((hash) => {
+      const rect = document.querySelector(hash).getBoundingClientRect();
+      return {
+        open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+        visible: rect.top >= 0 && rect.top < window.innerHeight,
+      };
+    }, touchHref);
+    tap("tapping a link closes the sheet", !touched.open);
+    tap("tapping a link brings the heading into view", touched.visible);
+  },
+};
+
+const errors = [];
+const { page, close } = await openPage(htmlPath, {
+  beforeLoad: (target) => target.on("pageerror", (error) => errors.push(error.message)),
+});
+try {
+  await assertions[fixture](page);
+} finally {
+  await close();
+}
+finish();

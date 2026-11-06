@@ -1,0 +1,15 @@
+---
+title: "One heading"
+format: html
+toc: true
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" one-heading
+---
+
+## Only
+
+Text.
+

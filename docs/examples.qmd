@@ -1,0 +1,79 @@
+---
+title: "Examples"
+subtitle: "The narrow-screen table of contents, on a page and in a project."
+description: "How the table of contents button looks and behaves on a single page, a website and a book."
+---
+
+This site uses the extension.
+Make this window narrower than 768 pixels, the default `md` breakpoint of the theme, or open the page on a phone, to see the button at the bottom of the page.
+The configuration is in the `_quarto.yml` file of the site:
+
+```yaml
+filters:
+  - local/mobile-toc
+```
+
+On your own project, the filter name is `mobile-toc`.
+
+## A single page
+
+The smallest setup is a page with a table of contents and the filter in its front matter.
+
+```yaml
+---
+title: "My report"
+format: html
+toc: true
+filters:
+  - mobile-toc
+---
+```
+
+Select the button to open the sheet.
+The current section is highlighted, and it follows the page as you scroll.
+Press `Esc`, select the close button, or select outside the sheet to close it.
+
+## A website and a book
+
+For a website or a book, add the filter once in `_quarto.yml`:
+
+```yaml
+filters:
+  - mobile-toc
+
+format:
+  html:
+    toc: true
+```
+
+Every page that has a table of contents then gets the button.
+On a website, the "back to top" button of Quarto moves above the button when both show.
+On a book, the button follows the table of contents of each chapter.
+
+## A custom title and close label
+
+Set `toc-title` to change the text of the button.
+Set the `language` key `mobile-toc-close` to change the close label:
+
+```yaml
+toc-title: "Sur cette page"
+language:
+  mobile-toc-close: "Fermer"
+```
+
+## Colours and position
+
+Set the custom properties in your own stylesheet.
+This example sets a brand colour for the current section, and puts the button 3 rem from the bottom edge:
+
+```{.css filename="custom.css"}
+:root {
+  --mobile-toc-accent: #b3261e;
+  --mobile-toc-active-bg: #fbe9e7;
+  --mobile-toc-inset-block: 3rem;
+}
+```
+
+## Source
+
+The repository ships a short, standalone starting point you can copy: [`example.qmd`](https://github.com/mcanouil/quarto-mobile-toc/blob/main/example.qmd).

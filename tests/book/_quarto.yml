@@ -1,0 +1,15 @@
+project:
+  type: book
+
+filters:
+  - mobile-toc
+
+book:
+  title: "Mobile TOC book"
+  chapters:
+    - index.qmd
+    - second.qmd
+
+format:
+  html:
+    toc: true

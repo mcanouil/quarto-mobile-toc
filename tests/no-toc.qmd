@@ -1,0 +1,19 @@
+---
+title: "No table of contents"
+format: html
+toc: false
+_quarto:
+  tests:
+    html:
+      ensureFileRegexMatches:
+        - []
+        - ['mobile-toc']
+---
+
+## First section
+
+Lorem ipsum dolor sit amet.
+
+## Second section
+
+Ut enim ad minim veniam.

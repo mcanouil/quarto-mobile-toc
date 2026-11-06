@@ -1,0 +1,110 @@
+---
+title: "Reference"
+subtitle: "Every setting the mobile-toc extension accepts."
+description: "The filter entry, the styling custom properties, the language key and the cases where the extension does nothing."
+---
+
+## Configuration
+
+The extension has no YAML options.
+Add the filter, and turn on the table of contents:
+
+```yaml
+filters:
+  - mobile-toc
+
+format:
+  html:
+    toc: true
+```
+
+The button label is the title of the table of contents.
+Set it with `toc-title`.
+When the page has no title for the table of contents, the label is "Contents".
+
+To turn the extension off on one page, set `toc: false` on that page.
+The filter then adds no script and no style to the page.
+
+## Styling
+
+The extension reads CSS custom properties.
+Each property has a Bootstrap fallback, so the button and the sheet follow your theme, in the light and in the dark colour scheme.
+Set a property on `:root` in your own stylesheet:
+
+```{.css filename="custom.css"}
+:root {
+  --mobile-toc-accent: #b3261e;
+  --mobile-toc-inset-block: 4rem;
+}
+```
+
+```yaml
+format:
+  html:
+    css: custom.css
+```
+
+| Property | Default | Description |
+| --- | --- | --- |
+| `--mobile-toc-bg` | `--bs-body-bg` | Background of the button and the sheet. |
+| `--mobile-toc-fg` | `--bs-body-color` | Text colour of the button and the sheet. |
+| `--mobile-toc-muted` | `--bs-secondary-color` | Colour of the title in the sheet header. |
+| `--mobile-toc-edge` | `--bs-border-color` | Colour of the borders. |
+| `--mobile-toc-active-bg` | 15% of the accent colour mixed into the background | Background of the current section in the sheet. |
+| `--mobile-toc-accent` | `--bs-link-color` | Colour of the bar beside the current section and of the keyboard focus ring. |
+| `--mobile-toc-radius` | `--bs-border-radius-lg` | Radius of the top corners of the sheet. |
+| `--mobile-toc-inset-inline` | `1rem` | Distance from the button to the side edge of the screen. |
+| `--mobile-toc-inset-block` | `1rem` | Distance from the button to the bottom edge of the screen. |
+
+: Custom properties you can set. {.striped .hover tbl-colwidths="[28,22,50]"}
+
+To move the button away from another element, such as a chat bubble, change the two inset properties.
+
+The script sets four more properties on `:root`: `--mobile-toc-offset-x`, `--mobile-toc-offset-y`, `--mobile-toc-offset-left` and `--mobile-toc-pill-height`.
+The script owns them, and removes them when the button goes away.
+Do not set them.
+
+::: {.callout-note}
+If a page is wider than the screen, the button follows the part of the page that you can see.
+The "back to top" button of Quarto moves above the extension button, so that the two do not overlap.
+:::
+
+## Language
+
+The label of the close button in the sheet comes from the `language` key `mobile-toc-close`.
+The default is "Close".
+Set the key in the front matter of a page:
+
+```yaml
+language:
+  mobile-toc-close: "Fermer"
+```
+
+To set it for a whole project, add the key to a `_language.yml` file in the project.
+The extension needs Quarto 1.11 or later to read a custom `language` key.
+
+The extension has no other translations.
+Quarto translates `toc-title` for its built-in languages, so the button label is translated when `lang` is set.
+
+## Right-to-left pages
+
+On a page with `dir: rtl`, the button is at the bottom left corner.
+The inset properties still set the distance from that corner.
+
+## Limitations
+
+The extension adds no button in these cases:
+
+- The format is not HTML with Bootstrap, for example Reveal.js, PDF, Typst or Word.
+- The page has `toc: false`, or has no table of contents.
+- The table of contents is in the body of the page, with `toc-location: body`, `left-body` or `right-body`.
+- The table of contents has fewer than two links.
+- The browser does not support the Popover API.
+- The window is wide enough for Quarto to show the table of contents itself.
+  By default that is 768 pixels or more, the `md` breakpoint of the theme (`--bs-breakpoint-md`).
+
+The button and the sheet do not print.
+When the reader asks for less motion, the sheet opens with no transition.
+
+The extension works around a gap in Quarto: [quarto-cli#5961](https://github.com/quarto-dev/quarto-cli/issues/5961).
+It is a workaround until Quarto shows the table of contents on narrow screens.

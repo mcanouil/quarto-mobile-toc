@@ -1,0 +1,24 @@
+---
+title: "Numbered sections"
+format: html
+toc: true
+number-sections: true
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" numbered
+---
+
+## One
+
+Text.
+
+## Two
+
+Text.
+
+### Three
+
+Text.
+

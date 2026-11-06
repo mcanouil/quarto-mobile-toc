@@ -1,0 +1,32 @@
+---
+title: "Mobile TOC"
+subtitle: "Quarto Extension"
+author: "Mickaël Canouil"
+format: html
+toc: true
+filters:
+  - mobile-toc
+---
+
+## Narrow Screens
+
+Make this window narrower than 768 pixels, or open the page on a phone.
+A button with the title of the table of contents appears at the bottom of the page.
+Select it to open the table of contents in a sheet.
+
+## Current Section
+
+The sheet highlights the section you are reading.
+Select a heading in the sheet to close it and go to that section.
+
+### Nested Headings
+
+Headings below the first level show under their parent.
+
+## Turn It Off
+
+Set `toc: false` in the front matter of a page, and the page has no button.
+
+## Documentation
+
+See <https://m.canouil.dev/quarto-mobile-toc/> for the styling properties and the close label.

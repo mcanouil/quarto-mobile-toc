@@ -1,0 +1,10 @@
+{
+  "name": "quarto-mobile-toc-tests",
+  "private": true,
+  "type": "module",
+  "description": "Browser checks for the mobile-toc extension.",
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "playwright": "1.65.0"
+  }
+}

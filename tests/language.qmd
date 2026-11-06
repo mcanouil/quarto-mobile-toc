@@ -1,0 +1,21 @@
+---
+title: "Translated label"
+format: html
+toc: true
+language:
+  mobile-toc-close: "Fermer"
+_quarto:
+  tests:
+    html:
+      ensureFileRegexMatches:
+        - ['"close":"Fermer"']
+        - []
+---
+
+## First section
+
+Lorem ipsum dolor sit amet.
+
+## Second section
+
+Ut enim ad minim veniam.

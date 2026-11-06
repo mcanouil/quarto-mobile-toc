@@ -1,0 +1,68 @@
+---
+title: "Mobile TOC custom properties"
+format:
+  html:
+    toc: true
+    include-in-header:
+      - text: |
+          <style>
+            :root {
+              --mobile-toc-bg: rgb(1, 2, 3);
+              --mobile-toc-inset-inline: 40px;
+            }
+          </style>
+_quarto:
+  tests:
+    html:
+      ensureFileRegexMatches:
+        - ['id="mobile-toc-options"']
+        - []
+    run:
+      extension-test:
+        check: node _checks/layout-check.mjs "$EXTENSION_TEST_OUTPUT" custom
+---
+
+## First section
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Second section
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+
+### First subsection
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+### Second subsection
+
+Excepteur sint occaecat cupidatat non proident.
+
+## Third section
+
+Sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Fourth section
+
+Curabitur pretium tincidunt lacus, nulla gravida orci a odio.
+
+## Fifth section
+
+Nullam varius, turpis et commodo pharetra, est eros bibendum elit.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::

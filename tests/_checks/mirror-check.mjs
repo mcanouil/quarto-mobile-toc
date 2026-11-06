@@ -1,0 +1,127 @@
+/**
+ * Mobile TOC - Mirror check
+ * Check that the sheet follows the hidden table of contents.
+ *
+ * @license MIT
+ * @copyright 2026 Mickaël Canouil
+ * @author Mickaël Canouil
+ */
+
+import { openPage, tap, finish } from "./lib.mjs";
+
+const [, , htmlPath, fixture] = process.argv;
+if (!htmlPath || !fixture) {
+  console.error("Usage: node mirror-check.mjs <html-file> <fixture-name>");
+  process.exit(2);
+}
+
+const frames = (page, count) =>
+  page.evaluate(
+    (n) =>
+      new Promise((done) => {
+        const step = (left) => (left === 0 ? done() : requestAnimationFrame(() => step(left - 1)));
+        step(n);
+      }),
+    count,
+  );
+
+const headingIds = (page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("#TOC a")].map((a) => a.getAttribute("href").slice(1)),
+  );
+
+const scrollTo = (page, id) =>
+  page.evaluate((target) => {
+    const el = document.getElementById(target);
+    window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 10);
+  }, id);
+
+const activeHref = (page, selector) =>
+  page.evaluate(
+    (sel) => document.querySelector(`${sel} a.active`)?.getAttribute("href"),
+    selector,
+  );
+
+const assertions = {
+  async deep(page) {
+    const ids = await headingIds(page);
+
+    await scrollTo(page, ids[2]);
+    await page.waitForFunction(() => document.querySelector("#TOC a.active"));
+    await frames(page, 3);
+    const original = await activeHref(page, "#TOC");
+    const mirrored = await activeHref(page, "#mobile-toc-sheet");
+    tap("sheet link with the same href is active", !!original && original === mirrored, `${original} vs ${mirrored}`);
+
+    const current = await page.evaluate(() => {
+      const links = [...document.querySelectorAll("#mobile-toc-sheet a[aria-current]")];
+      return { count: links.length, value: links[0]?.getAttribute("aria-current"), active: links[0]?.classList.contains("active") };
+    });
+    tap("exactly one sheet link has aria-current=location", current.count === 1 && current.value === "location" && current.active);
+
+    await scrollTo(page, ids[ids.length - 3]);
+    await frames(page, 3);
+    const lists = await page.evaluate(() => {
+      const key = (ul) => ul.querySelector("a")?.getAttribute("href");
+      const original = new Map([...document.querySelectorAll("#TOC ul")].map((ul) => [key(ul), ul.className]));
+      return [...document.querySelectorAll("#mobile-toc-sheet ul")].map((ul) => ({
+        href: key(ul),
+        sheet: ul.className,
+        original: original.get(key(ul)),
+      }));
+    });
+    tap(
+      "every sheet list has the class of its original",
+      lists.length > 0 && lists.every((l) => l.sheet === l.original),
+      JSON.stringify(lists.filter((l) => l.sheet !== l.original)),
+    );
+    tap("a nested list was collapsed or shown", lists.some((l) => /collapse/.test(l.sheet)));
+
+    await page.evaluate(() => {
+      for (const a of document.querySelectorAll("#TOC a")) {
+        const probe = document.createElement("span");
+        probe.className = "probe";
+        probe.textContent = "x";
+        a.append(probe);
+      }
+      const links = document.querySelectorAll("#TOC a");
+      links.forEach((a) => a.classList.remove("active"));
+      links[links.length - 1].classList.add("active");
+    });
+    await frames(page, 3);
+    const recloned = await page.evaluate(() => {
+      const links = [...document.querySelectorAll("#mobile-toc-sheet a")];
+      return {
+        probes: links.every((a) => a.querySelector(".probe")),
+        last: links[links.length - 1].getAttribute("aria-current") === "location",
+        count: document.querySelectorAll("#mobile-toc-sheet a[aria-current]").length,
+      };
+    });
+    tap("every sheet link gets the probe after a re-clone", recloned.probes);
+    tap("last sheet link is current after a re-clone", recloned.last && recloned.count === 1);
+
+    await page.evaluate(() => {
+      window.__swaps = 0;
+      new MutationObserver((records) => {
+        for (const r of records) window.__swaps += [...r.addedNodes].filter((n) => n.nodeName === "UL").length;
+      }).observe(document.getElementById("mobile-toc-sheet"), { childList: true });
+      const first = document.querySelector("#TOC a");
+      for (let i = 0; i < 50; i += 1) first.append(document.createElement("span"));
+    });
+    await frames(page, 2);
+    const swaps = await page.evaluate(() => window.__swaps);
+    tap("50 mutations replace the sheet list once", swaps === 1, `swaps: ${swaps}`);
+  },
+};
+
+const { page, close } = await openPage(htmlPath);
+try {
+  if (!assertions[fixture]) {
+    console.error(`mirror-check: unknown fixture "${fixture}".`);
+    process.exit(2);
+  }
+  await assertions[fixture](page);
+} finally {
+  await close();
+}
+finish();

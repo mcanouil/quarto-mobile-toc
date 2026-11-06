@@ -1,0 +1,80 @@
+---
+title: "Other"
+_quarto:
+  tests:
+    run:
+      skip: "rendered by _checks/projects.sh as a website project"
+---
+
+## Other section 1
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 2
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 3
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 4
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 5
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 6
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 7
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Other section 8
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+

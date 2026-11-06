@@ -1,0 +1,25 @@
+project:
+  type: website
+
+filters:
+  - mobile-toc
+
+website:
+  title: "Mobile TOC website"
+  back-to-top-navigation: true
+  navbar:
+    search: true
+    left:
+      - href: index.qmd
+        text: Home
+      - href: other.qmd
+        text: Other
+  sidebar:
+    style: docked
+    contents:
+      - index.qmd
+      - other.qmd
+
+format:
+  html:
+    toc: true

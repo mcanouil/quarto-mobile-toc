@@ -1,0 +1,24 @@
+---
+title: "Right body TOC"
+format: html
+toc: true
+toc-location: right-body
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" right-body
+---
+
+## One
+
+Text.
+
+## Two
+
+Text.
+
+### Three
+
+Text.
+

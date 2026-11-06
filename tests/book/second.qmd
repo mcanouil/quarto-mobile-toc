@@ -1,0 +1,37 @@
+---
+_quarto:
+  tests:
+    run:
+      skip: "rendered by _checks/projects.sh as a book project"
+---
+
+# Second chapter
+
+## Second chapter section 1
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+### Second chapter subsection
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse.
+
+## Second chapter section 2
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Second chapter section 3
+
+Excepteur sint occaecat cupidatat non proident.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::

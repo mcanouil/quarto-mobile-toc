@@ -1,0 +1,5 @@
+project:
+  type: extension-test
+
+filters:
+  - mobile-toc

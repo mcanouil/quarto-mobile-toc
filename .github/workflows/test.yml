@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "_extensions/**"
+      - "tests/**"
+      - ".github/workflows/test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "_extensions/**"
+      - "tests/**"
+      - ".github/workflows/test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: ${{ github.event.pull_request.draft != true }}
+    uses: mcanouil/quarto-extension-test/.github/workflows/extension-test.yml@main
+    with:
+      node-version: "26"
+      playwright-browsers: "chromium"

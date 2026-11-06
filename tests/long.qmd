@@ -1,0 +1,376 @@
+---
+title: "Mobile TOC long page"
+format:
+  html:
+    toc: true
+_quarto:
+  tests:
+    html:
+      ensureFileRegexMatches:
+        - ['id="mobile-toc-options"']
+        - []
+    run:
+      extension-test:
+        check: node _checks/layout-check.mjs "$EXTENSION_TEST_OUTPUT" long
+---
+
+## Heading 01
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 02
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 03
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 04
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 05
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 06
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 07
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 08
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 09
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 10
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 11
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 12
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 13
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 14
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 15
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 16
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 17
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 18
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 19
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 20
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 21
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 22
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 23
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 24
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 25
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 26
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 27
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 28
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 29
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 30
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 31
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 32
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 33
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 34
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 35
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 36
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 37
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 38
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 39
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
+## Heading 40
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+::: {style="height: 40vh"}
+Spacer so that the page scrolls.
+:::
+
