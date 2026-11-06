@@ -3,10 +3,9 @@
 By default, below 768 pixels, Quarto hides the table of contents and gives the reader nothing in its place.
 This Quarto extension adds a button in the corner of the page that opens the table of contents in a bottom sheet.
 
-| Light | Dark |
-| --- | --- |
-| ![A phone-width page with the contents button in the bottom right corner, light colour scheme.](docs/assets/screenshots/pill-light.png) | ![A phone-width page with the contents button in the bottom right corner, dark colour scheme.](docs/assets/screenshots/pill-dark.png) |
-| ![The contents sheet open at the bottom of a phone-width page, with the current section highlighted, light colour scheme.](docs/assets/screenshots/sheet-light.png) | ![The contents sheet open at the bottom of a phone-width page, with the current section highlighted, dark colour scheme.](docs/assets/screenshots/sheet-dark.png) |
+| Button, light | Button, dark | Sheet, light | Sheet, dark |
+| --- | --- | --- | --- |
+| <img src="docs/assets/screenshots/pill-light.png" alt="A phone-width page with the contents button in the bottom right corner, light colour scheme." width="180"> | <img src="docs/assets/screenshots/pill-dark.png" alt="A phone-width page with the contents button in the bottom right corner, dark colour scheme." width="180"> | <img src="docs/assets/screenshots/sheet-light.png" alt="The contents sheet open at the bottom of a phone-width page, with the current section highlighted, light colour scheme." width="180"> | <img src="docs/assets/screenshots/sheet-dark.png" alt="The contents sheet open at the bottom of a phone-width page, with the current section highlighted, dark colour scheme." width="180"> |
 
 ## Installation
 
