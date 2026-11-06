@@ -46,6 +46,18 @@ const showBackToTop = async (page, x) => {
   await frames(page);
 };
 
+// Pan with dispatched touch events, because `Input.synthesizeScrollGesture` with a touch source does nothing on Linux Chromium.
+const touchPan = async (cdp, { x, y, dx, dy, steps = 10 }) => {
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] });
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: x + (dx * i) / steps, y: y + (dy * i) / steps }],
+    });
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+};
+
 const viewportState = (page) =>
   page.evaluate(() => ({
     left: visualViewport.offsetLeft,
@@ -112,13 +124,7 @@ const guard = async (page, { scrollX, backToTop }) => {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Emulation.setPageScaleFactor", { pageScaleFactor: 1.5 });
   await frames(page, 10);
-  await cdp.send("Input.synthesizeScrollGesture", {
-    x: 100,
-    y: 150,
-    xDistance: -60,
-    yDistance: -40,
-    gestureSourceType: "touch",
-  });
+  await touchPan(cdp, { x: 100, y: 150, dx: -60, dy: -40 });
   await frames(page, 20);
   const panned = await viewportState(page);
   tap("visual viewport panned", panned.left > 0, JSON.stringify(panned));
@@ -143,7 +149,7 @@ const assertions = {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setPageScaleFactor", { pageScaleFactor: 1.5 });
     await frames(page, 10);
-    await cdp.send("Input.synthesizeScrollGesture", { x: 100, y: 150, xDistance: -60, yDistance: -40, gestureSourceType: "touch" });
+    await touchPan(cdp, { x: 100, y: 150, dx: -60, dy: -40 });
     await frames(page, 20);
     const panned = await viewportState(page);
     tap("visual viewport panned", panned.left > 0, JSON.stringify(panned));
