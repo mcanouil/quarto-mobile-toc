@@ -134,7 +134,7 @@ body:has(> .mobile-toc-pill) #quarto-back-to-top {
 }
 
 @starting-style {
-  .mobile-toc-sheet:popover-open {
+  dialog.mobile-toc-sheet[open] {
     transform: translateY(100%);
   }
 }

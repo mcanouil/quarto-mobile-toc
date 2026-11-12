@@ -68,7 +68,7 @@ const viewportState = (page) =>
 const sheetInsideView = async (page, stage) => {
   const before = await viewportState(page);
   await page.evaluate(() => document.querySelector(".mobile-toc-pill").click());
-  await page.locator(".mobile-toc-sheet:popover-open").waitFor();
+  await page.locator(".mobile-toc-sheet[open]").waitFor();
   await frames(page, 20);
   const m = await page.evaluate(() => {
     const r = document.querySelector(".mobile-toc-sheet").getBoundingClientRect();
@@ -90,7 +90,7 @@ const sheetInsideView = async (page, stage) => {
     after.top === before.top && after.left === before.left && after.scrollY === before.scrollY,
     JSON.stringify({ before, after }),
   );
-  await page.evaluate(() => document.querySelector(".mobile-toc-sheet").hidePopover());
+  await page.evaluate(() => document.querySelector(".mobile-toc-sheet").close());
   await frames(page, 5);
 };
 
@@ -155,7 +155,7 @@ const assertions = {
     tap("visual viewport panned", panned.left > 0, JSON.stringify(panned));
     const before = await viewportState(page);
     await page.evaluate(() => document.querySelector(".mobile-toc-pill").click());
-    await page.locator(".mobile-toc-sheet:popover-open").waitFor();
+    await page.locator(".mobile-toc-sheet[open]").waitFor();
     await frames(page, 40);
     const after = await viewportState(page);
     tap(

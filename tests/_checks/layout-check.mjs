@@ -45,7 +45,7 @@ const pillStyle = (page, property) =>
 
 const openSheet = async (page) => {
   await page.locator(".mobile-toc-pill").click();
-  await page.locator(".mobile-toc-sheet:popover-open").waitFor();
+  await page.locator(".mobile-toc-sheet[open]").waitFor();
   await frames(page, 20);
 };
 

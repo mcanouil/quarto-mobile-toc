@@ -34,7 +34,7 @@
       !list ||
       document.getElementById("TOC-body") ||
       toc.closest("main") ||
-      !Object.hasOwn(HTMLElement.prototype, "popover") ||
+      typeof window.HTMLDialogElement?.prototype.showModal !== "function" ||
       list.querySelectorAll("a").length < 2
     ) {
       return;
@@ -47,11 +47,9 @@
     const narrow = window.matchMedia(`(width < ${breakpoint})`);
 
     const build = () => {
-      const sheet = document.createElement("div");
+      const sheet = document.createElement("dialog");
       sheet.id = SHEET_ID;
       sheet.className = "mobile-toc-sheet";
-      sheet.popover = "auto";
-      sheet.setAttribute("role", "navigation");
       sheet.setAttribute("aria-labelledby", "mobile-toc-sheet-label");
 
       const header = document.createElement("div");
@@ -63,8 +61,6 @@
       const close = document.createElement("button");
       close.type = "button";
       close.className = "mobile-toc-close";
-      close.setAttribute("popovertarget", SHEET_ID);
-      close.setAttribute("popovertargetaction", "hide");
       close.setAttribute("aria-label", closeLabel);
       close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
       header.append(sheetLabel, close);
@@ -119,10 +115,23 @@
         !event.defaultPrevented &&
         !(event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) &&
         link.origin + link.pathname === location.origin + location.pathname;
+      // A click on the backdrop targets the dialog itself, as does a click on its padding.
+      // Close only when the point is outside the dialog box.
+      const onBackdrop = (event) => {
+        if (event.target !== sheet) return false;
+        const box = sheet.getBoundingClientRect();
+        return (
+          event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom
+        );
+      };
       sheet.addEventListener("click", (event) => {
+        if (onBackdrop(event)) {
+          closeSheet();
+          return;
+        }
         const link = event.target.closest("a");
         if (!link) return;
-        sheet.hidePopover();
+        closeSheet();
         if (!isPlainSamePageClick(event, link)) return;
         let id;
         try {
@@ -158,12 +167,20 @@
       const pill = document.createElement("button");
       pill.type = "button";
       pill.className = "mobile-toc-pill";
-      pill.setAttribute("popovertarget", SHEET_ID);
+      pill.setAttribute("aria-haspopup", "dialog");
+      pill.setAttribute("aria-controls", SHEET_ID);
+      pill.setAttribute("aria-expanded", "false");
       pill.innerHTML = '<i class="bi bi-list-nested" aria-hidden="true"></i>';
       const pillLabel = document.createElement("span");
       pillLabel.className = "mobile-toc-pill-label";
       pillLabel.textContent = label;
       pill.append(pillLabel);
+      const collapse = () => pill.setAttribute("aria-expanded", "false");
+      const closeSheet = () => {
+        sheet.close();
+        collapse();
+      };
+      close.addEventListener("click", closeSheet);
       document.body.append(pill, sheet);
 
       const root = document.documentElement;
@@ -212,15 +229,24 @@
         apply();
       }
 
-      sheet.addEventListener("toggle", (event) => {
-        if (event.newState !== "open") return;
-        const link = sheet.querySelector("a.active");
+      // showModal() focuses the first control while the sheet still slides in from below the screen,
+      // and on a zoomed page that focus pans the visual viewport.
+      // A hidden sheet has no control to focus, so focus the start link afterwards, without a scroll.
+      pill.addEventListener("click", () => {
+        if (sheet.open) return;
+        sheet.style.visibility = "hidden";
+        sheet.showModal();
+        sheet.style.removeProperty("visibility");
+        pill.setAttribute("aria-expanded", "true");
+        const link = copy.querySelector("a[aria-current]") || copy.querySelector("a");
         if (!link) return;
-        const top = link.offsetTop;
-        const bottom = top + link.offsetHeight;
-        if (top < sheet.scrollTop) sheet.scrollTop = top;
-        else if (bottom > sheet.scrollTop + sheet.clientHeight) sheet.scrollTop = bottom - sheet.clientHeight;
+        const box = sheet.getBoundingClientRect();
+        const linkBox = link.getBoundingClientRect();
+        if (linkBox.top < box.top) sheet.scrollTop += linkBox.top - box.top;
+        else if (linkBox.bottom > box.bottom) sheet.scrollTop += linkBox.bottom - box.bottom;
+        link.focus({ preventScroll: true });
       });
+      sheet.addEventListener("close", collapse);
 
       return () => {
         listeners.abort();
@@ -232,7 +258,7 @@
         );
         observer.disconnect();
         cancelAnimationFrame(frame);
-        if (sheet.matches(":popover-open")) sheet.hidePopover();
+        if (sheet.open) sheet.close();
         pill.remove();
         sheet.remove();
       };

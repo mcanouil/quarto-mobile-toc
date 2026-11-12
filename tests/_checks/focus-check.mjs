@@ -27,22 +27,31 @@ const frames = (page, count) =>
     count,
   );
 
-const isOpen = (page) => page.evaluate(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+const isOpen = (page) => page.evaluate(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
 const focusIn = (page, selector) =>
   page.evaluate((sel) => !!document.activeElement?.closest(sel), selector);
 const focusOnPill = (page) => page.evaluate(() => document.activeElement?.classList.contains("mobile-toc-pill"));
-const pillExpanded = async (page) => {
+const pillNode = async (page) => {
   const session = await page.context().newCDPSession(page);
   const { nodes } = await session.send("Accessibility.getFullAXTree");
   await session.detach();
-  const pill = nodes.find((node) => node.role?.value === "button" && node.name?.value === pillName);
-  return pill?.properties.find((p) => p.name === "expanded")?.value.value === true;
+  return nodes.find((node) => !node.ignored && node.role?.value === "button" && node.name?.value === pillName);
 };
+const pillCollapsed = async (page) =>
+  (await pillNode(page))?.properties.find((p) => p.name === "expanded")?.value.value === false;
+
+const pillAttribute = (page) => page.locator(".mobile-toc-pill").getAttribute("aria-expanded");
+const focusOnStartLink = (page) =>
+  page.evaluate(() => {
+    const sheet = document.getElementById("mobile-toc-sheet");
+    const expected = sheet.querySelector("a[aria-current]") || sheet.querySelector("a");
+    return !!expected && document.activeElement === expected;
+  });
 
 const openWithKeyboard = async (page) => {
   await page.locator(".mobile-toc-pill").focus();
   await page.keyboard.press("Enter");
-  await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+  await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
 };
 
 const tabUntil = async (page, predicate, arg, limit = 12) => {
@@ -62,15 +71,36 @@ const assertions = {
   async focus(page) {
     await openWithKeyboard(page);
     tap("sheet is open after Enter on the pill", await isOpen(page));
-    tap("pill is expanded in the accessibility tree", await pillExpanded(page));
+    tap("pill is out of the accessibility tree while the modal sheet is open", !(await pillNode(page)));
+    tap("pill aria-expanded is true while the sheet is open", (await pillAttribute(page)) === "true");
+    tap("opening moves focus to the current link, else the first link", await focusOnStartLink(page));
 
-    await page.keyboard.press("Tab");
+    let escaped = false;
+    for (let i = 0; i < 20; i += 1) {
+      await page.keyboard.press("Tab");
+      const inside = await page.evaluate(() => {
+        const active = document.activeElement;
+        return !active || active === document.body || !!active.closest("#mobile-toc-sheet");
+      });
+      if (!inside) escaped = true;
+    }
+    tap("Tab stays inside the open sheet", !escaped);
     tap("Tab moves focus into the sheet", await focusIn(page, "#mobile-toc-sheet"));
 
     await page.keyboard.press("Escape");
+    await frames(page, 2);
     tap("Escape closes the sheet", !(await isOpen(page)));
     tap("Escape returns focus to the pill", await focusOnPill(page));
-    tap("pill is collapsed in the accessibility tree", !(await pillExpanded(page)));
+    tap("pill is collapsed in the accessibility tree", await pillCollapsed(page));
+    tap("pill aria-expanded is false once the sheet is closed", (await pillAttribute(page)) === "false");
+
+    await openWithKeyboard(page);
+    const box = await page.locator("#mobile-toc-sheet").boundingBox();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height - 2);
+    tap("click on the sheet padding keeps the sheet open", await isOpen(page));
+    await page.mouse.click(box.x + box.width / 2, Math.max(1, box.y / 2));
+    tap("click on the backdrop closes the sheet", !(await isOpen(page)));
+    tap("pill aria-expanded is false after a backdrop click", (await pillAttribute(page)) === "false");
 
     await openWithKeyboard(page);
     const reached = await tabUntil(page, () => document.activeElement?.classList.contains("mobile-toc-close"));
@@ -91,7 +121,7 @@ const assertions = {
     await page.keyboard.press("Enter");
     await frames(page, 3);
     const landed = await page.evaluate(() => ({
-      open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+      open: document.getElementById("mobile-toc-sheet").matches("[open]"),
       hash: location.hash,
       tag: document.activeElement?.tagName,
       sectionId: document.activeElement?.closest("section")?.id,
@@ -151,7 +181,7 @@ const assertions = {
       await page.keyboard.press("Enter");
       await frames(page, 3);
       const missing = await page.evaluate(() => ({
-        open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+        open: document.getElementById("mobile-toc-sheet").matches("[open]"),
         tag: document.activeElement?.tagName,
       }));
       tap(`link to ${href} closes the sheet`, !missing.open);
@@ -162,14 +192,14 @@ const assertions = {
 
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.locator(".mobile-toc-pill").tap();
-    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches(":popover-open"));
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
     const touchHref = await page.locator("#mobile-toc-sheet a:visible").nth(2).evaluate((a) => a.hash);
     await page.locator("#mobile-toc-sheet a:visible").nth(2).tap();
     await frames(page, 5);
     const touched = await page.evaluate((hash) => {
       const rect = document.querySelector(hash).getBoundingClientRect();
       return {
-        open: document.getElementById("mobile-toc-sheet").matches(":popover-open"),
+        open: document.getElementById("mobile-toc-sheet").matches("[open]"),
         visible: rect.top >= 0 && rect.top < window.innerHeight,
       };
     }, touchHref);
