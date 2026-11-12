@@ -102,7 +102,7 @@ The extension adds no button in these cases:
 - The page has `toc: false`, or has no table of contents.
 - The table of contents is in the body of the page, with `toc-location: body`, `left-body` or `right-body`.
 - The table of contents has fewer than two links.
-- The browser does not support the Popover API.
+- The browser does not support modal dialogs (`HTMLDialogElement.showModal()`).
 - The window is wide enough for Quarto to show the table of contents itself.
   By default that is 768 pixels or more, the `md` breakpoint of the theme (`--bs-breakpoint-md`).
 

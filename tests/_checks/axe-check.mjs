@@ -45,7 +45,7 @@ const run = async (page) => {
   await page.locator(".mobile-toc-pill").waitFor();
   await scan(page, "sheet closed");
   await page.locator(".mobile-toc-pill").click();
-  await page.waitForFunction(() => document.querySelector("#mobile-toc-sheet")?.matches(":popover-open"));
+  await page.waitForFunction(() => document.querySelector("#mobile-toc-sheet")?.matches("[open]"));
   await frames(page, 15);
   await scan(page, "sheet open", { requireNodes: true });
 };

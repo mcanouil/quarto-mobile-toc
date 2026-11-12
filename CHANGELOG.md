@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- fix: Open the contents sheet as a modal dialog so focus and screen readers match the backdrop.
+
 ## 0.2.0 (2026-11-06)
 
 ### New Features

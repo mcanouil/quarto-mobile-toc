@@ -112,7 +112,7 @@ See the [Reference](reference.qmd) for the colours and the spacing you can chang
 The filter works in HTML output that uses Bootstrap, which includes single documents, websites and books.
 It does nothing in other formats, such as Reveal.js, PDF, Typst and Word.
 It also does nothing when the page has no table of contents, when the table of contents is in the body of the page, or when it has fewer than two links.
-A browser without the Popover API shows the page as it was, with no button.
+A browser without modal dialogs (`HTMLDialogElement.showModal()`) shows the page as it was, with no button.
 
 ## Links
 

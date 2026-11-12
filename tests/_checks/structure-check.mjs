@@ -36,6 +36,35 @@ const assertions = {
     );
     tap("sheet follows the pill", adjacent);
 
+    const roles = await page.evaluate(() => {
+      const sheet = document.querySelector("#mobile-toc-sheet");
+      const pill = document.querySelector(".mobile-toc-pill");
+      return {
+        tag: sheet?.tagName,
+        className: sheet?.className,
+        labelledby: sheet?.getAttribute("aria-labelledby"),
+        role: sheet?.getAttribute("role"),
+        popover: !!document.querySelector("[popover], [popovertarget]"),
+        haspopup: pill?.getAttribute("aria-haspopup"),
+        controls: pill?.getAttribute("aria-controls"),
+        expanded: pill?.getAttribute("aria-expanded"),
+      };
+    });
+    tap(
+      "sheet is a dialog labelled by the sheet label",
+      roles.tag === "DIALOG" &&
+        roles.className === "mobile-toc-sheet" &&
+        roles.labelledby === "mobile-toc-sheet-label" &&
+        roles.role === null,
+      JSON.stringify(roles),
+    );
+    tap("no popover attribute on the pill or the sheet", !roles.popover);
+    tap(
+      "pill declares the dialog it opens and starts collapsed",
+      roles.haspopup === "dialog" && roles.controls === "mobile-toc-sheet" && roles.expanded === "false",
+      JSON.stringify(roles),
+    );
+
     const clean = await page.evaluate(() => {
       const list = document.querySelector("#mobile-toc-sheet > ul");
       return (
@@ -70,7 +99,7 @@ const assertions = {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.locator(".mobile-toc-pill").click();
-    const open = await page.evaluate(() => document.querySelector("#mobile-toc-sheet")?.matches(":popover-open"));
+    const open = await page.evaluate(() => document.querySelector("#mobile-toc-sheet")?.matches("[open]"));
     tap("sheet is open before the resize", open === true);
     await page.setViewportSize({ width: 800, height: 667 });
     await page.waitForTimeout(200);
@@ -82,11 +111,17 @@ const assertions = {
     tap("no pill after the resize", state.pill === 0);
     tap("no sheet after the resize", state.sheet === 0);
     tap("no root property after the resize", state.left.length === 0, state.left.join(", "));
+    const live = await page.evaluate(() => {
+      const link = document.querySelector("nav#TOC a");
+      link?.focus();
+      return { focused: !!link && document.activeElement === link, inert: !!link?.closest("[inert]") };
+    });
+    tap("page content takes focus after the resize", live.focused && !live.inert, JSON.stringify(live));
     tap("no page error", errors.length === 0, errors.join("; "));
   },
 
-  async "no-popover"(page) {
-    tap("no pill without the Popover API", (await pillCount(page)) === 0);
+  async "no-dialog"(page) {
+    tap("no pill without HTMLDialogElement.showModal", (await pillCount(page)) === 0);
   },
 
   async "left-toc"(page) {
@@ -126,15 +161,15 @@ if (!run) {
 }
 
 const sessions = {
-  page: ["page", "page-wide", "teardown", "no-popover"],
+  page: ["page", "page-wide", "teardown", "no-dialog"],
 };
 
 for (const name of sessions[fixture] ?? [fixture]) {
   const { page, close } = await openPage(htmlPath, { width: name === "page-wide" ? 800 : 375 });
   try {
-    if (name === "no-popover") {
+    if (name === "no-dialog") {
       await page.addInitScript(() => {
-        delete HTMLElement.prototype.popover;
+        delete HTMLDialogElement.prototype.showModal;
       });
       await page.reload({ waitUntil: "load" });
     }
