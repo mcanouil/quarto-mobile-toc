@@ -181,6 +181,22 @@ body:has(.mobile-toc-pill) #quarto-back-to-top {
   }
 }
 
+@media (forced-colors: active) {
+  .mobile-toc-pill,
+  .mobile-toc-close {
+    border: 1px solid ButtonText;
+  }
+
+  .mobile-toc-sheet a.active {
+    border-inline-start: 3px solid Highlight;
+    box-shadow: none;
+  }
+
+  .mobile-toc-sheet a.active:dir(rtl) {
+    box-shadow: none;
+  }
+}
+
 @media print {
   .mobile-toc-pill,
   .mobile-toc-sheet {

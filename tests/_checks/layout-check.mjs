@@ -82,6 +82,45 @@ const assertions = {
     await page.emulateMedia({ media: "screen" });
   },
 
+  async "forced-colours"(page) {
+    await page.emulateMedia({ forcedColors: "active" });
+    await page.evaluate(() => {
+      const heading = document.querySelector("section.level2 > h2");
+      window.scrollTo(0, heading.getBoundingClientRect().top + window.scrollY - 10);
+    });
+    await page.waitForFunction(() => document.querySelector("#mobile-toc-sheet a.active"));
+    await openSheet(page);
+
+    const marker = (dir) =>
+      page.evaluate((direction) => {
+        document.documentElement.dir = direction;
+        const style = getComputedStyle(document.querySelector("#mobile-toc-sheet a.active"));
+        return {
+          start: parseFloat(style.borderInlineStartWidth),
+          colour: style.borderInlineStartColor,
+          left: parseFloat(style.borderLeftWidth),
+          right: parseFloat(style.borderRightWidth),
+        };
+      }, dir);
+    const visible = (m) => m.start > 0 && m.colour !== "rgba(0, 0, 0, 0)" && m.colour !== "transparent";
+
+    const ltr = await marker("ltr");
+    tap("active link has a visible inline-start marker in forced colours", visible(ltr), JSON.stringify(ltr));
+    tap("active link marker is on the left in left-to-right", ltr.left > 0 && ltr.right === 0, JSON.stringify(ltr));
+    const rtl = await marker("rtl");
+    tap("active link has a visible inline-start marker in right-to-left", visible(rtl), JSON.stringify(rtl));
+    tap("active link marker is on the right in right-to-left", rtl.right > 0 && rtl.left === 0, JSON.stringify(rtl));
+    await marker("ltr");
+
+    const borders = await page.evaluate(() =>
+      [".mobile-toc-pill", ".mobile-toc-close"].map((s) => {
+        const style = getComputedStyle(document.querySelector(s));
+        return { s, width: parseFloat(style.borderTopWidth), style: style.borderTopStyle };
+      }),
+    );
+    tap("pill and close button keep a border in forced colours", borders.every((b) => b.width > 0 && b.style !== "none"), JSON.stringify(borders));
+  },
+
   async long(page) {
     await openSheet(page);
     const metrics = await page.locator(".mobile-toc-sheet").evaluate((el) => ({
