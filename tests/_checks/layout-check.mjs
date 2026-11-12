@@ -121,6 +121,46 @@ const assertions = {
       return { found: true, inside: l.top >= s.top && l.bottom <= s.bottom, link: l.toJSON(), sheet: s.toJSON() };
     });
     tap("active link is inside the open sheet", visible.found && visible.inside, JSON.stringify(visible));
+
+    await page.keyboard.press("Escape");
+    // The local dev Quarto sets the same property inline for its own pill; drop it so only the extension stylesheet is measured.
+    const dropNativePadding = () => page.evaluate(() => document.documentElement.style.removeProperty("scroll-padding-bottom"));
+    const padding = async () => {
+      await dropNativePadding();
+      return page.evaluate(() => getComputedStyle(document.documentElement).scrollPaddingBottom);
+    };
+    const pillPadding = await padding();
+    tap("root has a bottom scroll padding while the pill exists", !["0px", "auto"].includes(pillPadding), pillPadding);
+    await page.evaluate(() => {
+      const target = document.createElement("button");
+      target.id = "focus-target";
+      target.textContent = "Focus target";
+      target.style.display = "block";
+      target.style.width = "100%";
+      document.querySelectorAll("main h2")[20].before(target);
+    });
+    await dropNativePadding();
+    await page.evaluate(() => {
+      const target = document.querySelector("#focus-target");
+      scrollTo(0, target.getBoundingClientRect().top + scrollY - innerHeight + 10);
+      target.focus();
+    });
+    await frames(page, 20);
+    const rects = await page.evaluate(() => ({
+      pill: document.querySelector(".mobile-toc-pill").getBoundingClientRect().toJSON(),
+      target: document.querySelector("#focus-target").getBoundingClientRect().toJSON(),
+    }));
+    const overlaps =
+      rects.target.left < rects.pill.right &&
+      rects.target.right > rects.pill.left &&
+      rects.target.top < rects.pill.bottom &&
+      rects.target.bottom > rects.pill.top;
+    tap("focused element scrolled into view does not sit under the pill", !overlaps, JSON.stringify(rects));
+
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.waitForFunction(() => !document.querySelector(".mobile-toc-pill"));
+    const widePadding = await padding();
+    tap("scroll padding is back to its default without the pill", ["0px", "auto"].includes(widePadding), widePadding);
   },
 
   async custom(page) {
