@@ -43,6 +43,23 @@ const activeHref = (page, selector) =>
   );
 
 const assertions = {
+  async "toggle-clone"(page) {
+    const state = await page.evaluate(() => ({
+      clones: document.querySelectorAll("#quarto-toc-toggle nav#TOC").length,
+      sheet: !!document.getElementById("mobile-toc-sheet"),
+    }));
+    tap("the toggle clone precedes the side table of contents", state.clones === 1);
+    tap("the sheet is built", state.sheet);
+
+    await page.evaluate(() => {
+      const link = document.querySelector("#quarto-margin-sidebar nav#TOC a, #quarto-sidebar-toc-left nav#TOC a");
+      link.append(Object.assign(document.createElement("span"), { className: "probe", textContent: "x" }));
+    });
+    await frames(page, 3);
+    const followed = await page.evaluate(() => !!document.querySelector("#mobile-toc-sheet .probe"));
+    tap("the sheet follows the side table of contents", followed);
+  },
+
   async deep(page) {
     const ids = await headingIds(page);
 
@@ -114,7 +131,22 @@ const assertions = {
   },
 };
 
-const { page, close } = await openPage(htmlPath);
+const pageOptions = {
+  "toggle-clone": {
+    beforeLoad(page) {
+      page.addInitScript(() => {
+        document.addEventListener("DOMContentLoaded", () => {
+          const toggle = document.createElement("div");
+          toggle.id = "quarto-toc-toggle";
+          toggle.append(document.querySelector("nav#TOC").cloneNode(true));
+          document.body.prepend(toggle);
+        });
+      });
+    },
+  },
+};
+
+const { page, close } = await openPage(htmlPath, pageOptions[fixture]);
 try {
   if (!assertions[fixture]) {
     console.error(`mirror-check: unknown fixture "${fixture}".`);

@@ -28,7 +28,7 @@
   };
 
   const start = () => {
-    const toc = document.querySelector("nav#TOC");
+    const toc = document.querySelector("#quarto-margin-sidebar nav#TOC, #quarto-sidebar-toc-left nav#TOC");
     const list = toc?.querySelector(":scope > ul");
     if (
       !list ||
