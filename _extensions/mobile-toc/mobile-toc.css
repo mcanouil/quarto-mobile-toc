@@ -189,7 +189,16 @@ body:has(.mobile-toc-pill) #quarto-back-to-top {
 
   .mobile-toc-sheet a.active {
     border-inline-start: 3px solid Highlight;
+    padding-inline-start: calc(0.5rem - 3px);
     box-shadow: none;
+  }
+
+  .mobile-toc-sheet ul ul a.active {
+    padding-inline-start: calc(1.2rem - 3px);
+  }
+
+  .mobile-toc-sheet ul ul ul a.active {
+    padding-inline-start: calc(1.9rem - 3px);
   }
 
   .mobile-toc-sheet a.active:dir(rtl) {

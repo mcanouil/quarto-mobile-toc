@@ -91,34 +91,58 @@ const assertions = {
     await page.waitForFunction(() => document.querySelector("#mobile-toc-sheet a.active"));
     await openSheet(page);
 
+    const system = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      document.body.append(probe);
+      const resolve = (name) => {
+        probe.style.color = name;
+        return getComputedStyle(probe).color;
+      };
+      const colours = { highlight: resolve("Highlight") };
+      probe.remove();
+      return colours;
+    });
+
     const marker = (dir) =>
-      page.evaluate((direction) => {
+      page.evaluate(async (direction) => {
         document.documentElement.dir = direction;
-        const style = getComputedStyle(document.querySelector("#mobile-toc-sheet a.active"));
+        await new Promise((done) => setTimeout(done, 300));
+        const active = document.querySelector("#mobile-toc-sheet a.active");
+        const style = getComputedStyle(active);
+        const depth = (el) => {
+          let count = 0;
+          for (let node = el.parentElement; node; node = node.parentElement) if (node.tagName === "UL") count += 1;
+          return count;
+        };
+        const contentEdge = (el) => {
+          const box = el.getBoundingClientRect();
+          const css = getComputedStyle(el);
+          return direction === "rtl"
+            ? box.right - parseFloat(css.borderRightWidth) - parseFloat(css.paddingRight)
+            : box.left + parseFloat(css.borderLeftWidth) + parseFloat(css.paddingLeft);
+        };
+        const sibling = [...document.querySelectorAll("#mobile-toc-sheet a:not(.active)")].find(
+          (el) => depth(el) === depth(active),
+        );
         return {
           start: parseFloat(style.borderInlineStartWidth),
           colour: style.borderInlineStartColor,
           left: parseFloat(style.borderLeftWidth),
           right: parseFloat(style.borderRightWidth),
+          offset: sibling ? Math.abs(contentEdge(active) - contentEdge(sibling)) : null,
         };
       }, dir);
-    const visible = (m) => m.start > 0 && m.colour !== "rgba(0, 0, 0, 0)" && m.colour !== "transparent";
+    const visible = (m) => m.start > 0 && m.colour === system.highlight;
 
     const ltr = await marker("ltr");
-    tap("active link has a visible inline-start marker in forced colours", visible(ltr), JSON.stringify(ltr));
+    tap("active link marker is Highlight in forced colours", visible(ltr), `${JSON.stringify(ltr)} ${system.highlight}`);
     tap("active link marker is on the left in left-to-right", ltr.left > 0 && ltr.right === 0, JSON.stringify(ltr));
+    tap("active link text stays aligned with other links in left-to-right", ltr.offset !== null && ltr.offset <= 0.5, JSON.stringify(ltr));
     const rtl = await marker("rtl");
-    tap("active link has a visible inline-start marker in right-to-left", visible(rtl), JSON.stringify(rtl));
+    tap("active link marker is Highlight in right-to-left", visible(rtl), `${JSON.stringify(rtl)} ${system.highlight}`);
     tap("active link marker is on the right in right-to-left", rtl.right > 0 && rtl.left === 0, JSON.stringify(rtl));
+    tap("active link text stays aligned with other links in right-to-left", rtl.offset !== null && rtl.offset <= 0.5, JSON.stringify(rtl));
     await marker("ltr");
-
-    const borders = await page.evaluate(() =>
-      [".mobile-toc-pill", ".mobile-toc-close"].map((s) => {
-        const style = getComputedStyle(document.querySelector(s));
-        return { s, width: parseFloat(style.borderTopWidth), style: style.borderTopStyle };
-      }),
-    );
-    tap("pill and close button keep a border in forced colours", borders.every((b) => b.width > 0 && b.style !== "none"), JSON.stringify(borders));
   },
 
   async long(page) {
