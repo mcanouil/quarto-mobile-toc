@@ -8,6 +8,7 @@
 - fix: Place the contents button early in the tab order.
 - fix: Keep focused content clear of the contents button.
 - fix: Show the active contents link in forced colours mode.
+- fix: Follow the side table of contents instead of its toggle clone. (#4)
 
 ## 0.2.0 (2026-11-06)
 

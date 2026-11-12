@@ -1,0 +1,26 @@
+---
+title: "Mobile TOC toggle clone"
+format: html
+toc: true
+_quarto:
+  tests:
+    html:
+      ensureFileRegexMatches:
+        - ['mobile-toc\.js']
+        - []
+    run:
+      extension-test:
+        check: node _checks/mirror-check.mjs "$EXTENSION_TEST_OUTPUT" toggle-clone
+---
+
+## First section
+
+Lorem ipsum dolor sit amet.
+
+## Second section
+
+Lorem ipsum dolor sit amet.
+
+## Third section
+
+Lorem ipsum dolor sit amet.
