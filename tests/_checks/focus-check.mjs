@@ -69,6 +69,28 @@ const tabToThirdLink = async (page) => {
 
 const assertions = {
   async focus(page) {
+    const visited = [];
+    for (let i = 0; i < 6 && !(await focusOnPill(page)); i += 1) {
+      await page.keyboard.press("Tab");
+      visited.push(
+        await page.evaluate(() => {
+          const el = document.activeElement;
+          const region = el?.closest("main, aside, .sidebar, #quarto-sidebar, #quarto-margin-sidebar");
+          return { label: `${el?.tagName}${el?.id ? `#${el.id}` : ""}`, content: !!region };
+        }),
+      );
+    }
+    tap(
+      "Tab reaches the pill before any link in main, aside or a sidebar",
+      (await focusOnPill(page)) && !visited.some((stop) => stop.content),
+      visited.map((stop) => `${stop.label}${stop.content ? " (content)" : ""}`).join(", "),
+    );
+    const beforeMain = await page.evaluate(() => {
+      const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
+      const pill = document.querySelector(".mobile-toc-pill");
+      return !!main && !!(pill.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    tap("the pill comes before main in the document", beforeMain);
     await openWithKeyboard(page);
     tap("sheet is open after Enter on the pill", await isOpen(page));
     tap("pill is out of the accessibility tree while the modal sheet is open", !(await pillNode(page)));
@@ -210,6 +232,7 @@ const assertions = {
 
 const errors = [];
 const { page, close } = await openPage(htmlPath, {
+  hideNativePill: true,
   beforeLoad: (target) => target.on("pageerror", (error) => errors.push(error.message)),
 });
 try {

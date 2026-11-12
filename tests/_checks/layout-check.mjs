@@ -187,6 +187,7 @@ if (!run) {
 
 const collected = { errors: [] };
 const { page, close } = await openPage(htmlPath, {
+  hideNativePill: true,
   beforeLoad: (p) => p.on("pageerror", (error) => collected.errors.push(error.message)),
 });
 try {

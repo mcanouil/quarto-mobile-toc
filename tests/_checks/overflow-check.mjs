@@ -196,7 +196,7 @@ if (!run) {
 
 // The long list keeps its slide-in transition, because the page panned while the sheet was still translated.
 const reducedMotion = fixture === "overflow-long" ? "no-preference" : "reduce";
-const { page, close } = await openPage(htmlPath, { reducedMotion });
+const { page, close } = await openPage(htmlPath, { reducedMotion, hideNativePill: true });
 try {
   await run(page);
 } finally {
