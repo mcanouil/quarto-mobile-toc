@@ -69,6 +69,22 @@ const tabToThirdLink = async (page) => {
 
 const assertions = {
   async focus(page) {
+    const visited = [];
+    for (let i = 0; i < 6 && !(await focusOnPill(page)); i += 1) {
+      await page.keyboard.press("Tab");
+      visited.push(await page.evaluate(() => (document.activeElement?.closest("main") ? "main" : "other")));
+    }
+    tap(
+      "Tab reaches the pill before any link in the page content",
+      (await focusOnPill(page)) && !visited.includes("main"),
+      visited.join(", "),
+    );
+    const beforeMain = await page.evaluate(() => {
+      const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
+      const pill = document.querySelector(".mobile-toc-pill");
+      return !!main && !!(pill.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    tap("the pill comes before main in the document", beforeMain);
     await openWithKeyboard(page);
     tap("sheet is open after Enter on the pill", await isOpen(page));
     tap("pill is out of the accessibility tree while the modal sheet is open", !(await pillNode(page)));

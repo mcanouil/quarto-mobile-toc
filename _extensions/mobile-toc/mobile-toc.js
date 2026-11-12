@@ -181,7 +181,9 @@
         collapse();
       };
       close.addEventListener("click", closeSheet);
-      document.body.append(pill, sheet);
+      const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
+      if (main) main.before(pill, sheet);
+      else document.body.append(pill, sheet);
 
       const root = document.documentElement;
       const writePillHeight = () => {

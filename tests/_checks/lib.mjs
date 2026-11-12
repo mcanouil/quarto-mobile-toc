@@ -98,6 +98,13 @@ export async function openPage(
     deviceScaleFactor,
   });
   const page = await context.newPage();
+  await page.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = ".quarto-toc-pill, .quarto-toc-sheet { display: none !important; }";
+      document.head.append(style);
+    });
+  });
   beforeLoad?.(page);
   await page.goto(url, { waitUntil: "load" });
   if (rtl) {

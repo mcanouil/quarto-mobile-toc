@@ -124,6 +124,19 @@ const assertions = {
     tap("no pill without HTMLDialogElement.showModal", (await pillCount(page)) === 0);
   },
 
+  async "no-main"(page) {
+    tap("pill without a main element", (await pillCount(page)) === 1);
+    const placement = await page.evaluate(() => ({
+      main: !!document.querySelector("main"),
+      parent: document.querySelector(".mobile-toc-pill")?.parentElement?.tagName,
+    }));
+    tap("pill mounts in body when there is no main", !placement.main && placement.parent === "BODY", JSON.stringify(placement));
+    await page.locator(".mobile-toc-pill").focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"), null, { timeout: 3000 }).catch(() => {});
+    tap("sheet opens without a main element", await page.evaluate(() => document.getElementById("mobile-toc-sheet").matches("[open]")));
+  },
+
   async "left-toc"(page) {
     tap("pill with a left TOC", (await pillCount(page)) === 1);
   },
@@ -161,12 +174,24 @@ if (!run) {
 }
 
 const sessions = {
-  page: ["page", "page-wide", "teardown", "no-dialog"],
+  page: ["page", "page-wide", "teardown", "no-dialog", "no-main"],
 };
 
 for (const name of sessions[fixture] ?? [fixture]) {
   const { page, close } = await openPage(htmlPath, { width: name === "page-wide" ? 800 : 375 });
   try {
+    if (name === "no-main") {
+      await page.addInitScript(() => {
+        document.addEventListener("DOMContentLoaded", () => {
+          for (const main of document.querySelectorAll("main")) {
+            const replacement = document.createElement("div");
+            replacement.append(...main.childNodes);
+            main.replaceWith(replacement);
+          }
+        });
+      });
+      await page.reload({ waitUntil: "load" });
+    }
     if (name === "no-dialog") {
       await page.addInitScript(() => {
         delete HTMLDialogElement.prototype.showModal;
