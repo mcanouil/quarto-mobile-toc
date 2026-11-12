@@ -60,7 +60,7 @@ const setups = {
   "dark-fallback": toggleDark,
 };
 
-const { page, close } = await openPage(htmlPath);
+const { page, close } = await openPage(htmlPath, { hideNativePill: true });
 try {
   await setups[fixture]?.(page);
   await run(page);

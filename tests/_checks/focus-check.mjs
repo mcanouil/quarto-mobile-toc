@@ -72,12 +72,18 @@ const assertions = {
     const visited = [];
     for (let i = 0; i < 6 && !(await focusOnPill(page)); i += 1) {
       await page.keyboard.press("Tab");
-      visited.push(await page.evaluate(() => (document.activeElement?.closest("main") ? "main" : "other")));
+      visited.push(
+        await page.evaluate(() => {
+          const el = document.activeElement;
+          const region = el?.closest("main, aside, .sidebar, #quarto-sidebar, #quarto-margin-sidebar");
+          return { label: `${el?.tagName}${el?.id ? `#${el.id}` : ""}`, content: !!region };
+        }),
+      );
     }
     tap(
-      "Tab reaches the pill before any link in the page content",
-      (await focusOnPill(page)) && !visited.includes("main"),
-      visited.join(", "),
+      "Tab reaches the pill before any link in main, aside or a sidebar",
+      (await focusOnPill(page)) && !visited.some((stop) => stop.content),
+      visited.map((stop) => `${stop.label}${stop.content ? " (content)" : ""}`).join(", "),
     );
     const beforeMain = await page.evaluate(() => {
       const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
@@ -226,6 +232,7 @@ const assertions = {
 
 const errors = [];
 const { page, close } = await openPage(htmlPath, {
+  hideNativePill: true,
   beforeLoad: (target) => target.on("pageerror", (error) => errors.push(error.message)),
 });
 try {

@@ -137,6 +137,23 @@ const assertions = {
     tap("sheet opens without a main element", await page.evaluate(() => document.getElementById("mobile-toc-sheet").matches("[open]")));
   },
 
+  async "nested-main"(page) {
+    const placement = await page.evaluate(() => {
+      const pill = document.querySelector(".mobile-toc-pill");
+      const main = document.querySelector("main");
+      return {
+        direct: !!document.querySelector("#quarto-content > main"),
+        before:
+          !!pill &&
+          pill.parentElement === main.parentElement &&
+          pill.parentElement.id !== "quarto-content" &&
+          pill.nextElementSibling?.id === "mobile-toc-sheet" &&
+          !!(pill.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING),
+      };
+    });
+    tap("pill and sheet sit before a main that is not a child of #quarto-content", !placement.direct && placement.before, JSON.stringify(placement));
+  },
+
   async "left-toc"(page) {
     tap("pill with a left TOC", (await pillCount(page)) === 1);
   },
@@ -174,11 +191,11 @@ if (!run) {
 }
 
 const sessions = {
-  page: ["page", "page-wide", "teardown", "no-dialog", "no-main"],
+  page: ["page", "page-wide", "teardown", "no-dialog", "no-main", "nested-main"],
 };
 
 for (const name of sessions[fixture] ?? [fixture]) {
-  const { page, close } = await openPage(htmlPath, { width: name === "page-wide" ? 800 : 375 });
+  const { page, close } = await openPage(htmlPath, { width: name === "page-wide" ? 800 : 375, hideNativePill: true });
   try {
     if (name === "no-main") {
       await page.addInitScript(() => {
@@ -188,6 +205,17 @@ for (const name of sessions[fixture] ?? [fixture]) {
             replacement.append(...main.childNodes);
             main.replaceWith(replacement);
           }
+        });
+      });
+      await page.reload({ waitUntil: "load" });
+    }
+    if (name === "nested-main") {
+      await page.addInitScript(() => {
+        document.addEventListener("DOMContentLoaded", () => {
+          const main = document.querySelector("#quarto-content > main");
+          const wrapper = document.createElement("div");
+          main.before(wrapper);
+          wrapper.append(main);
         });
       });
       await page.reload({ waitUntil: "load" });

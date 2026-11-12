@@ -79,12 +79,13 @@ async function serve(htmlPath) {
  * @param {boolean} [options.rtl=false] Set the document direction to right to left.
  * @param {number} [options.deviceScaleFactor=1] Pixel ratio of the context.
  * @param {"reduce"|"no-preference"} [options.reducedMotion] Motion preference of the context.
+ * @param {boolean} [options.hideNativePill=false] Hide the native contents pill of a dev Quarto build.
  * @param {(page: import("playwright").Page) => void} [options.beforeLoad] Called with the page before it loads.
  * @returns {Promise<{page: import("playwright").Page, close: () => Promise<void>}>}
  */
 export async function openPage(
   htmlPath,
-  { width = 375, height = 667, isMobile = true, rtl = false, reducedMotion, deviceScaleFactor = 1, beforeLoad } = {},
+  { width = 375, height = 667, isMobile = true, rtl = false, reducedMotion, deviceScaleFactor = 1, hideNativePill = false, beforeLoad } = {},
 ) {
   const { url, close: closeServer } = await serve(htmlPath);
   const browser = await chromium.launch({
@@ -98,13 +99,20 @@ export async function openPage(
     deviceScaleFactor,
   });
   const page = await context.newPage();
-  await page.addInitScript(() => {
-    document.addEventListener("DOMContentLoaded", () => {
+  if (hideNativePill) {
+    // The local dev Quarto renders its own native contents pill at the same spot; a release Quarto does not.
+    await page.addInitScript(() => {
       const style = document.createElement("style");
       style.textContent = ".quarto-toc-pill, .quarto-toc-sheet { display: none !important; }";
-      document.head.append(style);
+      const attach = () => document.documentElement?.append(style) ?? null;
+      if (!attach()) {
+        const observer = new MutationObserver(() => {
+          if (attach()) observer.disconnect();
+        });
+        observer.observe(document, { childList: true });
+      }
     });
-  });
+  }
   beforeLoad?.(page);
   await page.goto(url, { waitUntil: "load" });
   if (rtl) {
