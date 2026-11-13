@@ -80,10 +80,19 @@
         if (copy) copy.replaceWith(fresh);
         else landmark.append(fresh);
         copy = fresh;
+        uncollapse();
         markCurrent();
         if (focusedHref) {
           [...copy.querySelectorAll("a")].find((a) => a.getAttribute("href") === focusedHref)?.focus();
         }
+      };
+      // The side table of contents collapses the branches away from the reading position.
+      // The sheet has no control to expand them, so it lists every entry, also during a collapse animation.
+      const uncollapse = () => {
+        copy.querySelectorAll("ul.collapse, ul.collapsing").forEach((ul) => {
+          ul.classList.remove("collapse", "collapsing");
+          ul.style.removeProperty("height");
+        });
       };
       const markCurrent = () => {
         copy.querySelectorAll("a[aria-current]").forEach((a) => a.removeAttribute("aria-current"));
@@ -103,6 +112,7 @@
             else target[index].setAttribute(name, value);
           }
         });
+        uncollapse();
         markCurrent();
       };
       mount();

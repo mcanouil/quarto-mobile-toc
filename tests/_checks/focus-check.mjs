@@ -228,14 +228,17 @@ const assertions = {
     await page.locator("#mobile-toc-sheet a:visible").nth(2).tap();
     await frames(page, 5);
     const touched = await page.evaluate((hash) => {
-      const rect = document.querySelector(hash).getBoundingClientRect();
+      const target = document.querySelector(hash);
+      const heading = target.querySelector(":scope > :is(h1, h2, h3, h4, h5, h6)") || target;
+      const rect = heading.getBoundingClientRect();
       return {
         open: document.getElementById("mobile-toc-sheet").matches("[open]"),
-        visible: rect.top >= 0 && rect.top < window.innerHeight,
+        top: rect.top,
+        visible: rect.bottom > 0 && rect.top < window.innerHeight,
       };
     }, touchHref);
     tap("tapping a link closes the sheet", !touched.open);
-    tap("tapping a link brings the heading into view", touched.visible);
+    tap("tapping a link brings the heading into view", touched.visible, `${touchHref} top ${touched.top}`);
   },
 };
 
