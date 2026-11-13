@@ -91,22 +91,28 @@ const assertions = {
     await page.waitForFunction(() => document.querySelector("#mobile-toc-sheet a.active"));
     await openSheet(page);
 
-    const system = await page.evaluate(() => {
+    const highlight = await page.evaluate(() => {
       const probe = document.createElement("div");
       document.body.append(probe);
-      const resolve = (name) => {
-        probe.style.color = name;
-        return getComputedStyle(probe).color;
-      };
-      const colours = { highlight: resolve("Highlight") };
+      probe.style.color = "Highlight";
+      const colour = getComputedStyle(probe).color;
       probe.remove();
-      return colours;
+      return colour;
     });
 
-    const marker = (dir) =>
-      page.evaluate(async (direction) => {
-        document.documentElement.dir = direction;
-        await new Promise((done) => setTimeout(done, 300));
+    const marker = async (direction) => {
+      await page.evaluate((value) => {
+        document.documentElement.dir = value;
+      }, direction);
+      await page.waitForFunction(
+        ([value, colour]) => {
+          const style = getComputedStyle(document.querySelector("#mobile-toc-sheet a.active"));
+          const side = value === "rtl" ? style.borderRightWidth : style.borderLeftWidth;
+          return parseFloat(side) > 0 && style.borderInlineStartColor === colour;
+        },
+        [direction, highlight],
+      );
+      return page.evaluate((direction) => {
         const active = document.querySelector("#mobile-toc-sheet a.active");
         const style = getComputedStyle(active);
         const depth = (el) => {
@@ -131,17 +137,19 @@ const assertions = {
           right: parseFloat(style.borderRightWidth),
           offset: sibling ? Math.abs(contentEdge(active) - contentEdge(sibling)) : null,
         };
-      }, dir);
-    const visible = (m) => m.start > 0 && m.colour === system.highlight;
+      }, direction);
+    };
 
-    const ltr = await marker("ltr");
-    tap("active link marker is Highlight in forced colours", visible(ltr), `${JSON.stringify(ltr)} ${system.highlight}`);
-    tap("active link marker is on the left in left-to-right", ltr.left > 0 && ltr.right === 0, JSON.stringify(ltr));
-    tap("active link text stays aligned with other links in left-to-right", ltr.offset !== null && ltr.offset <= 0.5, JSON.stringify(ltr));
-    const rtl = await marker("rtl");
-    tap("active link marker is Highlight in right-to-left", visible(rtl), `${JSON.stringify(rtl)} ${system.highlight}`);
-    tap("active link marker is on the right in right-to-left", rtl.right > 0 && rtl.left === 0, JSON.stringify(rtl));
-    tap("active link text stays aligned with other links in right-to-left", rtl.offset !== null && rtl.offset <= 0.5, JSON.stringify(rtl));
+    for (const [direction, side, other] of [
+      ["ltr", "left", "right"],
+      ["rtl", "right", "left"],
+    ]) {
+      const m = await marker(direction);
+      const name = direction === "ltr" ? "left-to-right" : "right-to-left";
+      tap(`active link marker is Highlight in ${direction === "ltr" ? "forced colours" : name}`, m.start > 0 && m.colour === highlight, `${JSON.stringify(m)} ${highlight}`);
+      tap(`active link marker is on the ${side} in ${name}`, m[side] > 0 && m[other] === 0, JSON.stringify(m));
+      tap(`active link text stays aligned with other links in ${name}`, m.offset !== null && m.offset <= 0.5, JSON.stringify(m));
+    }
     await marker("ltr");
   },
 
@@ -200,7 +208,8 @@ const assertions = {
       target.textContent = "Focus target";
       target.style.display = "block";
       target.style.width = "100%";
-      document.querySelectorAll("main h2")[20].before(target);
+      const headings = [...document.querySelectorAll("main h2")];
+      headings.at(Math.floor(headings.length / 2)).before(target);
     });
     await dropNativePadding();
     await page.evaluate(() => {

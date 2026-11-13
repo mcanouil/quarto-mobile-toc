@@ -33,7 +33,6 @@
     if (
       !list ||
       document.getElementById("TOC-body") ||
-      toc.closest("main") ||
       typeof window.HTMLDialogElement?.prototype.showModal !== "function" ||
       list.querySelectorAll("a").length < 2
     ) {
@@ -64,7 +63,9 @@
       close.setAttribute("aria-label", closeLabel);
       close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
       header.append(sheetLabel, close);
-      sheet.append(header);
+      const landmark = document.createElement("nav");
+      landmark.setAttribute("aria-labelledby", "mobile-toc-sheet-label");
+      sheet.append(header, landmark);
 
       let copy = null;
       const mount = () => {
@@ -77,7 +78,7 @@
           ? document.activeElement.getAttribute("href")
           : null;
         if (copy) copy.replaceWith(fresh);
-        else sheet.append(fresh);
+        else landmark.append(fresh);
         copy = fresh;
         markCurrent();
         if (focusedHref) {
@@ -126,12 +127,12 @@
       };
       sheet.addEventListener("click", (event) => {
         if (onBackdrop(event)) {
-          closeSheet();
+          sheet.close();
           return;
         }
         const link = event.target.closest("a");
         if (!link) return;
-        closeSheet();
+        sheet.close();
         if (!isPlainSamePageClick(event, link)) return;
         let id;
         try {
@@ -175,12 +176,7 @@
       pillLabel.className = "mobile-toc-pill-label";
       pillLabel.textContent = label;
       pill.append(pillLabel);
-      const collapse = () => pill.setAttribute("aria-expanded", "false");
-      const closeSheet = () => {
-        sheet.close();
-        collapse();
-      };
-      close.addEventListener("click", closeSheet);
+      close.addEventListener("click", () => sheet.close());
       const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
       if (main) main.before(pill, sheet);
       else document.body.append(pill, sheet);
@@ -248,7 +244,11 @@
         else if (linkBox.bottom > box.bottom) sheet.scrollTop += linkBox.bottom - box.bottom;
         link.focus({ preventScroll: true });
       });
-      sheet.addEventListener("close", collapse);
+      sheet.addEventListener("close", () => {
+        pill.setAttribute("aria-expanded", "false");
+        // Safari does not focus a button on tap, so close() would otherwise leave focus on the body.
+        if (document.activeElement === document.body || sheet.contains(document.activeElement)) pill.focus();
+      });
 
       return () => {
         listeners.abort();

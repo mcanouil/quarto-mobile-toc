@@ -65,8 +65,18 @@ const assertions = {
       JSON.stringify(roles),
     );
 
+    const landmark = await page.evaluate(() => {
+      const nav = document.querySelector("#mobile-toc-sheet > nav");
+      return { labelledby: nav?.getAttribute("aria-labelledby"), links: nav?.querySelectorAll("a").length ?? 0 };
+    });
+    tap(
+      "the link list sits in a navigation landmark labelled by the sheet label",
+      landmark.labelledby === "mobile-toc-sheet-label" && landmark.links > 0,
+      JSON.stringify(landmark),
+    );
+
     const clean = await page.evaluate(() => {
-      const list = document.querySelector("#mobile-toc-sheet > ul");
+      const list = document.querySelector("#mobile-toc-sheet > nav > ul");
       return (
         !!list &&
         !list.matches("[id], [inert]") &&
@@ -76,7 +86,7 @@ const assertions = {
     tap("sheet list has no id or inert", clean);
 
     const counts = await page.evaluate(() => ({
-      sheet: document.querySelectorAll("#mobile-toc-sheet > ul a").length,
+      sheet: document.querySelectorAll("#mobile-toc-sheet > nav > ul a").length,
       toc: document.querySelectorAll("nav#TOC > ul a").length,
     }));
     tap("sheet has the same links as the side list", counts.sheet === counts.toc && counts.toc > 0, JSON.stringify(counts));
@@ -133,7 +143,7 @@ const assertions = {
     tap("pill mounts in body when there is no main", !placement.main && placement.parent === "BODY", JSON.stringify(placement));
     await page.locator(".mobile-toc-pill").focus();
     await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"), null, { timeout: 3000 }).catch(() => {});
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"), null, { timeout: 3000 });
     tap("sheet opens without a main element", await page.evaluate(() => document.getElementById("mobile-toc-sheet").matches("[open]")));
   },
 

@@ -47,8 +47,13 @@ const assertions = {
     const state = await page.evaluate(() => ({
       clones: document.querySelectorAll("#quarto-toc-toggle nav#TOC").length,
       sheet: !!document.getElementById("mobile-toc-sheet"),
+      clonePrecedes: !!(
+        document.querySelector("#quarto-toc-toggle nav#TOC")?.compareDocumentPosition(
+          document.querySelector("#quarto-margin-sidebar nav#TOC, #quarto-sidebar-toc-left nav#TOC"),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING
+      ),
     }));
-    tap("the toggle clone precedes the side table of contents", state.clones === 1);
+    tap("the toggle clone precedes the side table of contents", state.clones === 1 && state.clonePrecedes);
     tap("the sheet is built", state.sheet);
 
     await page.evaluate(() => {
@@ -121,7 +126,7 @@ const assertions = {
       window.__swaps = 0;
       new MutationObserver((records) => {
         for (const r of records) window.__swaps += [...r.addedNodes].filter((n) => n.nodeName === "UL").length;
-      }).observe(document.getElementById("mobile-toc-sheet"), { childList: true });
+      }).observe(document.querySelector("#mobile-toc-sheet > nav"), { childList: true });
       const first = document.querySelector("#TOC a");
       for (let i = 0; i < 50; i += 1) first.append(document.createElement("span"));
     });
@@ -134,7 +139,7 @@ const assertions = {
 const pageOptions = {
   "toggle-clone": {
     beforeLoad(page) {
-      page.addInitScript(() => {
+      return page.addInitScript(() => {
         document.addEventListener("DOMContentLoaded", () => {
           const toggle = document.createElement("div");
           toggle.id = "quarto-toc-toggle";
