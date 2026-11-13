@@ -245,11 +245,15 @@ const assertions = {
     for (const id of ["sale-50%zz", "café"]) {
       await page.evaluate(() => window.scrollTo(0, 0));
       await openWithKeyboard(page);
-      await page.evaluate((target) => {
-        [...document.querySelectorAll("#mobile-toc-sheet a")]
-          .find((a) => a.getAttribute("href") === `#${target}` || a.hash === `#${encodeURIComponent(target)}`)
-          .focus();
+      const found = await page.evaluate((target) => {
+        const link = [...document.querySelectorAll("#mobile-toc-sheet a")].find(
+          (a) => a.getAttribute("href") === `#${target}` || a.hash === `#${encodeURIComponent(target)}`,
+        );
+        link?.focus();
+        return !!link;
       }, id);
+      tap(`the sheet lists a link to ${id}`, found);
+      if (!found) continue;
       await page.keyboard.press("Enter");
       await frames(page, 3);
       const focused = await page.evaluate(() => ({
@@ -262,6 +266,7 @@ const assertions = {
         JSON.stringify(focused),
       );
     }
+    tap("no page error was raised", errors.length === 0, errors.join("; "));
   },
 };
 
