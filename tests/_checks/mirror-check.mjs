@@ -123,20 +123,30 @@ const assertions = {
     tap("last sheet link is current after a re-clone", recloned.last && recloned.count === 1);
 
     const hiddenHref = await page.evaluate(() => document.querySelector("#TOC li a").getAttribute("href"));
-    for (const hide of [true, false]) {
-      await page.evaluate((value) => {
-        document.querySelector("#TOC li").hidden = value;
-      }, hide);
-      await frames(page, 3);
-      const state = await page.evaluate((h) => {
-        const item = document.querySelector(`#mobile-toc-sheet a[href="${h}"]`).closest("li");
-        return { hidden: item.hidden, display: getComputedStyle(item).display };
-      }, hiddenHref);
-      tap(
-        `sheet entry is ${hide ? "hidden" : "shown"} when its original is ${hide ? "hidden" : "shown"}`,
-        state.hidden === hide && (state.display === "none") === hide,
-        JSON.stringify(state),
-      );
+    for (const tag of ["li", "a"]) {
+      for (const hide of [true, false]) {
+        await page.evaluate(
+          ([name, value]) => {
+            document.querySelector(`#TOC li${name === "a" ? " a" : ""}`).hidden = value;
+          },
+          [tag, hide],
+        );
+        await frames(page, 3);
+        const state = await page.evaluate(
+          ([h, name]) => {
+            const link = document.querySelector(`#mobile-toc-sheet a[href="${h}"]`);
+            const el = name === "a" ? link : link.closest("li");
+            return { hidden: el.hidden, display: getComputedStyle(el).display };
+          },
+          [hiddenHref, tag],
+        );
+        const word = hide ? "hidden" : "shown";
+        tap(
+          `sheet ${tag} is ${word} when its original is ${word}`,
+          state.hidden === hide && (state.display === "none") === hide,
+          JSON.stringify(state),
+        );
+      }
     }
 
     await page.evaluate(() => {
