@@ -4,10 +4,10 @@
 
 ### Bug Fixes
 
-- fix: Open the contents sheet as a modal dialog so focus and screen readers match the backdrop.
-- fix: Place the contents button early in the tab order.
-- fix: Keep focused content clear of the contents button.
-- fix: Show the active contents link in forced colours mode.
+- fix: Open the contents sheet as a modal dialog so the page behind it is out of reach for keyboard and screen readers. (#5)
+- fix: Place the contents button early in the tab order. (#6)
+- fix: Keep focused content clear of the contents button. (#7)
+- fix: Show the active contents link in forced colours mode. (#8)
 - fix: Follow the side table of contents instead of its toggle clone. (#4)
 
 ## 0.2.0 (2026-11-06)

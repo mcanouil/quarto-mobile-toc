@@ -122,6 +122,7 @@ const assertions = {
     tap("click on the sheet padding keeps the sheet open", await isOpen(page));
     await page.mouse.click(box.x + box.width / 2, Math.max(1, box.y / 2));
     tap("click on the backdrop closes the sheet", !(await isOpen(page)));
+    await page.waitForFunction(() => document.querySelector(".mobile-toc-pill").getAttribute("aria-expanded") === "false", null, { timeout: 3000 }).catch(() => {});
     tap("pill aria-expanded is false after a backdrop click", (await pillAttribute(page)) === "false");
 
     await openWithKeyboard(page);

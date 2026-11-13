@@ -104,7 +104,11 @@ export async function openPage(
     await page.addInitScript(() => {
       const style = document.createElement("style");
       style.textContent = ".quarto-toc-pill, .quarto-toc-sheet { display: none !important; }";
-      const attach = () => document.documentElement?.append(style) ?? null;
+      const attach = () => {
+        if (!document.documentElement) return false;
+        document.documentElement.append(style);
+        return true;
+      };
       if (!attach()) {
         const observer = new MutationObserver(() => {
           if (attach()) observer.disconnect();

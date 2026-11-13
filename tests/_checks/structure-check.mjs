@@ -133,7 +133,7 @@ const assertions = {
     tap("pill mounts in body when there is no main", !placement.main && placement.parent === "BODY", JSON.stringify(placement));
     await page.locator(".mobile-toc-pill").focus();
     await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"), null, { timeout: 3000 }).catch(() => {});
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"), null, { timeout: 3000 });
     tap("sheet opens without a main element", await page.evaluate(() => document.getElementById("mobile-toc-sheet").matches("[open]")));
   },
 

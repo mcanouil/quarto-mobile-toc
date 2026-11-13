@@ -126,12 +126,12 @@
       };
       sheet.addEventListener("click", (event) => {
         if (onBackdrop(event)) {
-          closeSheet();
+          sheet.close();
           return;
         }
         const link = event.target.closest("a");
         if (!link) return;
-        closeSheet();
+        sheet.close();
         if (!isPlainSamePageClick(event, link)) return;
         let id;
         try {
@@ -175,12 +175,7 @@
       pillLabel.className = "mobile-toc-pill-label";
       pillLabel.textContent = label;
       pill.append(pillLabel);
-      const collapse = () => pill.setAttribute("aria-expanded", "false");
-      const closeSheet = () => {
-        sheet.close();
-        collapse();
-      };
-      close.addEventListener("click", closeSheet);
+      close.addEventListener("click", () => sheet.close());
       const main = document.querySelector("#quarto-content > main") ?? document.querySelector("main");
       if (main) main.before(pill, sheet);
       else document.body.append(pill, sheet);
@@ -248,7 +243,7 @@
         else if (linkBox.bottom > box.bottom) sheet.scrollTop += linkBox.bottom - box.bottom;
         link.focus({ preventScroll: true });
       });
-      sheet.addEventListener("close", collapse);
+      sheet.addEventListener("close", () => pill.setAttribute("aria-expanded", "false"));
 
       return () => {
         listeners.abort();
