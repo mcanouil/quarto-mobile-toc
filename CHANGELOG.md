@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1 (2026-11-13)
+
 ### Bug Fixes
 
 - fix: Open the contents sheet as a modal dialog so the page behind it is out of reach for keyboard and screen readers. (#5)
