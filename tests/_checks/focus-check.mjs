@@ -240,6 +240,29 @@ const assertions = {
     tap("tapping a link closes the sheet", !touched.open);
     tap("tapping a link brings the heading into view", touched.visible, `${touchHref} top ${touched.top}`);
   },
+
+  async ids(page) {
+    for (const id of ["sale-50%zz", "café"]) {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await openWithKeyboard(page);
+      await page.evaluate((target) => {
+        [...document.querySelectorAll("#mobile-toc-sheet a")]
+          .find((a) => a.getAttribute("href") === `#${target}` || a.hash === `#${encodeURIComponent(target)}`)
+          .focus();
+      }, id);
+      await page.keyboard.press("Enter");
+      await frames(page, 3);
+      const focused = await page.evaluate(() => ({
+        tag: document.activeElement?.tagName,
+        sectionId: document.activeElement?.closest("section")?.id,
+      }));
+      tap(
+        `link to ${id} focuses its heading`,
+        /^H[1-6]$/.test(focused.tag) && focused.sectionId === id,
+        JSON.stringify(focused),
+      );
+    }
+  },
 };
 
 const errors = [];

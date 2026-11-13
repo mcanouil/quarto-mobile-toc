@@ -128,6 +128,16 @@
         }
         heading.focus({ preventScroll: true });
       };
+      // An id may hold a stray percent sign that is not an escape, so try the raw id before decoding.
+      const targetId = (hash) => {
+        const raw = hash.slice(1);
+        if (document.getElementById(raw)) return raw;
+        try {
+          return decodeURIComponent(raw);
+        } catch {
+          return null;
+        }
+      };
       const isPlainSamePageClick = (event, link) =>
         !event.defaultPrevented &&
         !(event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) &&
@@ -150,13 +160,8 @@
         if (!link) return;
         sheet.close();
         if (!isPlainSamePageClick(event, link)) return;
-        let id;
-        try {
-          id = decodeURIComponent(link.hash.slice(1));
-        } catch {
-          return;
-        }
-        requestAnimationFrame(() => focusHeading(id));
+        const id = targetId(link.hash);
+        if (id !== null) requestAnimationFrame(() => focusHeading(id));
       });
 
       // Other scripts may add children inside TOC links, so a copy paired by position can drift.
