@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- fix: List every contents entry in the sheet, including those the side table of contents collapses. (#17)
+
 ## 0.2.2 (2026-11-13)
 
 ### Bug Fixes
