@@ -20,6 +20,7 @@ CHECKS=(
 	"book|second.html|_checks/focus-check.mjs focus"
 	"book|second.html|_checks/layout-check.mjs page"
 	"book|second.html|_checks/layout-check.mjs forced-colours"
+	"book|index.html|_checks/layout-check.mjs end"
 	"book|second.html|_checks/axe-check.mjs book"
 )
 

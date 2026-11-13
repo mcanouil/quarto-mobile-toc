@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - fix: List every contents entry in the sheet, including those the side table of contents collapses. (#17)
+- fix: Keep the last focused element at the end of the page clear of the contents button. (#18)
 
 ## 0.2.2 (2026-11-13)
 

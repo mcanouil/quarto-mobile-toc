@@ -82,6 +82,50 @@ const assertions = {
     await page.emulateMedia({ media: "screen" });
   },
 
+  async end(page) {
+    const padding = await page.evaluate(() => {
+      const root = document.documentElement;
+      const before = getComputedStyle(document.body).paddingBottom;
+      root.style.setProperty("--mobile-toc-offset-y", "100px");
+      const shifted = getComputedStyle(document.body).paddingBottom;
+      root.style.removeProperty("--mobile-toc-offset-y");
+      return { before, shifted };
+    });
+    tap("the body padding does not follow the pill offset", padding.before === padding.shifted, JSON.stringify(padding));
+
+    const focused = await page.evaluate(() => {
+      document.documentElement.style.removeProperty("scroll-padding-bottom");
+      const focusable = [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")].filter(
+        (el) =>
+          el.tabIndex >= 0 &&
+          !el.closest(".mobile-toc-pill, .mobile-toc-sheet") &&
+          el.getClientRects().length > 0,
+      );
+      const last = focusable[focusable.length - 1];
+      last?.focus();
+      return !!last && document.activeElement === last;
+    });
+    tap("the last focusable element takes focus", focused);
+    if (!focused) return;
+    await frames(page, 20);
+    const state = await page.evaluate(() => {
+      const last = document.activeElement;
+      const box = last.getBoundingClientRect();
+      const pill = document.querySelector(".mobile-toc-pill").getBoundingClientRect();
+      return {
+        target: `${last.tagName} ${last.textContent.trim().slice(0, 30)}`,
+        targetBottom: Math.round(box.bottom),
+        pillTop: Math.round(pill.top),
+        sameColumn: box.right > pill.left && box.left < pill.right,
+        overlaps: box.bottom > pill.top && box.top < pill.bottom,
+        scrolledToEnd: Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 1,
+      };
+    });
+    tap("the last focusable element shares a column with the pill", state.sameColumn, JSON.stringify(state));
+    tap("the last focusable element of the page is at the end of the page", state.scrolledToEnd, JSON.stringify(state));
+    tap("the last focusable element is clear of the pill", !state.overlaps, JSON.stringify(state));
+  },
+
   async "forced-colours"(page) {
     await page.emulateMedia({ forcedColors: "active" });
     await page.evaluate(() => {
