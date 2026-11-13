@@ -9,6 +9,8 @@
 - fix: Keep focused content clear of the contents button. (#7)
 - fix: Show the active contents link in forced colours mode. (#8)
 - fix: Follow the side table of contents instead of its toggle clone. (#4)
+- fix: Return focus to the contents button when the sheet closes. (#9)
+- fix: Keep the contents list in a navigation landmark. (#9)
 
 ## 0.2.0 (2026-11-06)
 
