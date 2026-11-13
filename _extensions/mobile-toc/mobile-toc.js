@@ -161,7 +161,12 @@
         sheet.close();
         if (!isPlainSamePageClick(event, link)) return;
         const id = targetId(link.hash);
-        if (id !== null) requestAnimationFrame(() => focusHeading(id));
+        if (id === null) return;
+        // Firefox runs the fragment navigation after the next frame, and it blurs a heading focused before.
+        // Focus after the hash changes, or after the frame and its tasks when the hash stays the same.
+        const focusLater = () => setTimeout(() => focusHeading(id), 0);
+        if (link.hash === location.hash) requestAnimationFrame(focusLater);
+        else window.addEventListener("hashchange", focusLater, { once: true });
       });
 
       // Other scripts may add children inside TOC links, so a copy paired by position can drift.

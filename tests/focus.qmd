@@ -10,7 +10,7 @@ _quarto:
         - []
     run:
       extension-test:
-        check: node _checks/focus-check.mjs "$EXTENSION_TEST_OUTPUT" focus
+        check: node _checks/focus-check.mjs "$EXTENSION_TEST_OUTPUT" focus && node _checks/focus-check.mjs "$EXTENSION_TEST_OUTPUT" repeat
 ---
 
 ## First section
