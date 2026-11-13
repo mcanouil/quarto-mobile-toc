@@ -107,7 +107,11 @@ const assertions = {
       sheet.close();
       return lists;
     });
-    tap("a list in a collapse animation keeps its height in the sheet", animated.every((h) => h > 0), JSON.stringify(animated));
+    tap(
+      "a list in a collapse animation keeps its height in the sheet",
+      animated.length === 3 && animated.every((h) => h > 0),
+      JSON.stringify(animated),
+    );
   },
 
   async deep(page) {
