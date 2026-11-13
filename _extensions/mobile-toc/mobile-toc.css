@@ -67,10 +67,7 @@ body:has(.mobile-toc-pill) {
 
 body:has(.mobile-toc-pill) #quarto-back-to-top {
   left: calc(50% + (var(--mobile-toc-offset-left, 0px) - var(--mobile-toc-offset-x, 0px)) / 2);
-  bottom: calc(
-    var(--mobile-toc-inset-block, 1rem) + env(safe-area-inset-bottom) + var(--mobile-toc-offset-y, 0px) +
-      var(--mobile-toc-pill-height, 44px) + 0.75rem
-  );
+  bottom: calc(var(--mobile-toc-clearance) + 0.75rem);
 }
 
 .mobile-toc-sheet {

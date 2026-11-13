@@ -83,25 +83,30 @@ const assertions = {
   },
 
   async end(page) {
-    const state = await page.evaluate(() => {
+    await page.evaluate(() => {
       const focusable = [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")].filter(
         (el) =>
           el.tabIndex >= 0 &&
           !el.closest(".mobile-toc-pill, .mobile-toc-sheet") &&
           el.getClientRects().length > 0,
       );
-      const last = focusable[focusable.length - 1];
-      last.focus();
+      focusable[focusable.length - 1].focus();
+    });
+    await frames(page, 20);
+    const state = await page.evaluate(() => {
+      const last = document.activeElement;
       const box = last.getBoundingClientRect();
       const pill = document.querySelector(".mobile-toc-pill").getBoundingClientRect();
       return {
         target: `${last.tagName} ${last.textContent.trim().slice(0, 30)}`,
         targetBottom: Math.round(box.bottom),
         pillTop: Math.round(pill.top),
-        overlaps: box.bottom > pill.top && box.top < pill.bottom && box.right > pill.left && box.left < pill.right,
+        sameColumn: box.right > pill.left && box.left < pill.right,
+        overlaps: box.bottom > pill.top && box.top < pill.bottom,
         scrolledToEnd: Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 1,
       };
     });
+    tap("the last focusable element shares a column with the pill", state.sameColumn, JSON.stringify(state));
     tap("the last focusable element of the page is at the end of the page", state.scrolledToEnd, JSON.stringify(state));
     tap("the last focusable element is clear of the pill", !state.overlaps, JSON.stringify(state));
   },
