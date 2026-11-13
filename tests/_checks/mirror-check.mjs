@@ -126,7 +126,7 @@ const assertions = {
       window.__swaps = 0;
       new MutationObserver((records) => {
         for (const r of records) window.__swaps += [...r.addedNodes].filter((n) => n.nodeName === "UL").length;
-      }).observe(document.getElementById("mobile-toc-sheet"), { childList: true });
+      }).observe(document.querySelector("#mobile-toc-sheet > nav"), { childList: true });
       const first = document.querySelector("#TOC a");
       for (let i = 0; i < 50; i += 1) first.append(document.createElement("span"));
     });

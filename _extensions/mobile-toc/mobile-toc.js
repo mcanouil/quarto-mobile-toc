@@ -64,7 +64,9 @@
       close.setAttribute("aria-label", closeLabel);
       close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
       header.append(sheetLabel, close);
-      sheet.append(header);
+      const landmark = document.createElement("nav");
+      landmark.setAttribute("aria-labelledby", "mobile-toc-sheet-label");
+      sheet.append(header, landmark);
 
       let copy = null;
       const mount = () => {
@@ -77,7 +79,7 @@
           ? document.activeElement.getAttribute("href")
           : null;
         if (copy) copy.replaceWith(fresh);
-        else sheet.append(fresh);
+        else landmark.append(fresh);
         copy = fresh;
         markCurrent();
         if (focusedHref) {
