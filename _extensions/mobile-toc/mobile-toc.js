@@ -243,7 +243,11 @@
         else if (linkBox.bottom > box.bottom) sheet.scrollTop += linkBox.bottom - box.bottom;
         link.focus({ preventScroll: true });
       });
-      sheet.addEventListener("close", () => pill.setAttribute("aria-expanded", "false"));
+      sheet.addEventListener("close", () => {
+        pill.setAttribute("aria-expanded", "false");
+        // Safari does not focus a button on tap, so close() would otherwise leave focus on the body.
+        if (document.activeElement === document.body || sheet.contains(document.activeElement)) pill.focus();
+      });
 
       return () => {
         listeners.abort();

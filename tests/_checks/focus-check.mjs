@@ -116,13 +116,21 @@ const assertions = {
     tap("pill is collapsed in the accessibility tree", await pillCollapsed(page));
     tap("pill aria-expanded is false once the sheet is closed", (await pillAttribute(page)) === "false");
 
+    await page.evaluate(() => {
+      document.activeElement?.blur();
+      document.getElementById("mobile-toc-sheet").showModal();
+    });
+    await page.keyboard.press("Escape");
+    await frames(page, 2);
+    tap("closing a sheet opened with no focused button returns focus to the pill", await focusOnPill(page));
+
     await openWithKeyboard(page);
     const box = await page.locator("#mobile-toc-sheet").boundingBox();
     await page.mouse.click(box.x + box.width / 2, box.y + box.height - 2);
     tap("click on the sheet padding keeps the sheet open", await isOpen(page));
     await page.mouse.click(box.x + box.width / 2, Math.max(1, box.y / 2));
     tap("click on the backdrop closes the sheet", !(await isOpen(page)));
-    await page.waitForFunction(() => document.querySelector(".mobile-toc-pill").getAttribute("aria-expanded") === "false", null, { timeout: 3000 }).catch(() => {});
+    await page.waitForFunction(() => document.querySelector(".mobile-toc-pill").getAttribute("aria-expanded") === "false", null, { timeout: 3000 });
     tap("pill aria-expanded is false after a backdrop click", (await pillAttribute(page)) === "false");
 
     await openWithKeyboard(page);

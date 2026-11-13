@@ -117,7 +117,7 @@ export async function openPage(
       }
     });
   }
-  beforeLoad?.(page);
+  await beforeLoad?.(page);
   await page.goto(url, { waitUntil: "load" });
   if (rtl) {
     await page.evaluate(() => {
