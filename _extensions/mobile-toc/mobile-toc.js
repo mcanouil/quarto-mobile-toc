@@ -90,12 +90,18 @@
         const active = copy.querySelectorAll("a.active");
         active[active.length - 1]?.setAttribute("aria-current", "location");
       };
-      const mirrorClasses = () => {
+      const MIRRORED = ["class", "hidden"];
+      const mirrorState = () => {
         const selector = "ul, li, a";
         const source = list.querySelectorAll(selector);
         const target = copy.querySelectorAll(selector);
         source.forEach((el, index) => {
-          if (target[index].className !== el.className) target[index].className = el.className;
+          for (const name of MIRRORED) {
+            const value = el.getAttribute(name);
+            if (target[index].getAttribute(name) === value) continue;
+            if (value === null) target[index].removeAttribute(name);
+            else target[index].setAttribute(name, value);
+          }
         });
         markCurrent();
       };
@@ -144,7 +150,7 @@
       });
 
       // Other scripts may add children inside TOC links, so a copy paired by position can drift.
-      // Clone the list again on any child change, and copy only classes otherwise.
+      // Clone the list again on any child change, and copy only classes and hidden otherwise.
       // Both are coalesced to one update for each animation frame.
       let frame = 0;
       let reclone = false;
@@ -154,7 +160,7 @@
         frame = requestAnimationFrame(() => {
           frame = 0;
           if (reclone) mount();
-          else mirrorClasses();
+          else mirrorState();
           reclone = false;
         });
       });
@@ -162,7 +168,7 @@
         subtree: true,
         childList: true,
         attributes: true,
-        attributeFilter: ["class"],
+        attributeFilter: MIRRORED,
       });
 
       const pill = document.createElement("button");
