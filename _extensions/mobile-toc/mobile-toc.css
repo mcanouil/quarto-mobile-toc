@@ -53,10 +53,16 @@
 }
 
 :root:has(.mobile-toc-pill) {
-  scroll-padding-bottom: calc(
+  --mobile-toc-clearance: calc(
     var(--mobile-toc-pill-height, 44px) + var(--mobile-toc-inset-block, 1rem) + env(safe-area-inset-bottom) +
       var(--mobile-toc-offset-y, 0px)
   );
+  scroll-padding-bottom: var(--mobile-toc-clearance);
+}
+
+/* Scroll padding cannot lift the end of the page above the pill, so the page gets room to scroll further. */
+body:has(.mobile-toc-pill) {
+  padding-bottom: var(--mobile-toc-clearance);
 }
 
 body:has(.mobile-toc-pill) #quarto-back-to-top {
