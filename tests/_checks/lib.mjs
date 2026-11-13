@@ -1,6 +1,6 @@
 /**
  * Mobile TOC - Browser check helpers
- * Serve a rendered page over HTTP and open it in Chromium.
+ * Serve a rendered page over HTTP and open it in Chromium or Firefox.
  *
  * @license MIT
  * @copyright 2026 Mickaël Canouil
@@ -82,7 +82,7 @@ async function connectFirefox() {
 }
 
 /**
- * Open a rendered page in Chromium at a given viewport.
+ * Open a rendered page in Chromium or Firefox at a given viewport.
  * Chromium comes from CHROME_PATH when set, otherwise from the Playwright cache.
  * @param {string} htmlPath Path to the rendered HTML file.
  * @param {object} [options]

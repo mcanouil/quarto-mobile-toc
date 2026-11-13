@@ -263,6 +263,26 @@ const assertions = {
     }
   },
 
+  async cancelled(page) {
+    const last = await page.evaluate(() => {
+      document.addEventListener("click", (event) => {
+        if (event.target.closest("#mobile-toc-sheet a")) event.preventDefault();
+      });
+      const links = document.querySelectorAll("#TOC a");
+      return links[links.length - 1].getAttribute("href");
+    });
+    await page.locator(".mobile-toc-pill").click();
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
+    await page.locator(`#mobile-toc-sheet a[href="${last}"]`).click();
+    await page.waitForTimeout(1200);
+    await page.evaluate(() => {
+      location.hash = "#first-section";
+    });
+    await page.waitForTimeout(300);
+    const sectionId = await page.evaluate(() => document.activeElement?.closest("section")?.id);
+    tap("a later hash change does not focus the heading of a cancelled link", `#${sectionId}` !== last, sectionId);
+  },
+
   async ids(page) {
     for (const id of ["sale-50%zz", "café"]) {
       await page.evaluate(() => window.scrollTo(0, 0));
