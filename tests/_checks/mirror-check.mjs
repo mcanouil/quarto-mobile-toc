@@ -65,6 +65,35 @@ const assertions = {
     tap("the sheet follows the side table of contents", followed);
   },
 
+  async collapsed(page) {
+    const sheetState = () =>
+      page.evaluate(() => {
+        const sheet = document.getElementById("mobile-toc-sheet");
+        sheet.showModal();
+        const links = [...sheet.querySelectorAll("a")];
+        const state = {
+          originalCollapsed: document.querySelectorAll("#TOC ul.collapse:not(.show)").length,
+          hiddenLinks: links.filter((a) => a.getBoundingClientRect().height === 0).map((a) => a.getAttribute("href")),
+          collapsedLists: sheet.querySelectorAll("ul.collapse, ul.collapsing").length,
+          links: links.length,
+        };
+        sheet.close();
+        return state;
+      });
+
+    const top = await sheetState();
+    tap("the side table of contents collapses some lists", top.originalCollapsed > 0, JSON.stringify(top));
+    tap("every sheet link is visible at the top of the page", top.links > 6 && top.hiddenLinks.length === 0, JSON.stringify(top));
+    tap("no sheet list keeps a collapse class", top.collapsedLists === 0, JSON.stringify(top));
+
+    const ids = await headingIds(page);
+    await scrollTo(page, ids[ids.length - 1]);
+    await frames(page, 3);
+    const end = await sheetState();
+    tap("every sheet link is visible after a scroll", end.hiddenLinks.length === 0, JSON.stringify(end));
+    tap("no sheet list keeps a collapse class after a scroll", end.collapsedLists === 0, JSON.stringify(end));
+  },
+
   async deep(page) {
     const ids = await headingIds(page);
 
@@ -85,19 +114,21 @@ const assertions = {
     await frames(page, 3);
     const lists = await page.evaluate(() => {
       const key = (ul) => ul.querySelector("a")?.getAttribute("href");
-      const original = new Map([...document.querySelectorAll("#TOC ul")].map((ul) => [key(ul), ul.className]));
+      const visible = (ul) => [...ul.classList].filter((name) => name !== "collapse" && name !== "collapsing").join(" ");
+      const original = new Map([...document.querySelectorAll("#TOC ul")].map((ul) => [key(ul), ul]));
       return [...document.querySelectorAll("#mobile-toc-sheet ul")].map((ul) => ({
         href: key(ul),
         sheet: ul.className,
-        original: original.get(key(ul)),
+        original: visible(original.get(key(ul))),
+        collapsed: original.get(key(ul)).classList.contains("collapse"),
       }));
     });
     tap(
-      "every sheet list has the class of its original",
+      "every sheet list has the class of its original, without collapse",
       lists.length > 0 && lists.every((l) => l.sheet === l.original),
       JSON.stringify(lists.filter((l) => l.sheet !== l.original)),
     );
-    tap("a nested list was collapsed or shown", lists.some((l) => /collapse/.test(l.sheet)));
+    tap("a nested list of the original was collapsed", lists.some((l) => l.collapsed));
 
     await page.evaluate(() => {
       for (const a of document.querySelectorAll("#TOC a")) {

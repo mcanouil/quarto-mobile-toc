@@ -1,0 +1,72 @@
+---
+title: "Mobile TOC collapsed page"
+format: html
+toc: true
+toc-depth: 3
+toc-expand: false
+_quarto:
+  tests:
+    run:
+      extension-test:
+        check: node _checks/mirror-check.mjs "$EXTENSION_TEST_OUTPUT" collapsed
+---
+
+## First section
+
+Lorem ipsum dolor sit amet.
+
+### First subsection
+
+Sed do eiusmod tempor.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+### Second subsection
+
+Ut enim ad minim veniam.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Second section
+
+Duis aute irure dolor.
+
+### Third subsection
+
+Excepteur sint occaecat.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+### Fourth subsection
+
+Sunt in culpa qui officia.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Third section
+
+Curabitur pretium tincidunt.
+
+### Fifth subsection
+
+Nullam varius.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+### Sixth subsection
+
+Turpis et commodo.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
