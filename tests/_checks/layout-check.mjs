@@ -83,15 +83,30 @@ const assertions = {
   },
 
   async end(page) {
-    await page.evaluate(() => {
+    const padding = await page.evaluate(() => {
+      const root = document.documentElement;
+      const before = getComputedStyle(document.body).paddingBottom;
+      root.style.setProperty("--mobile-toc-offset-y", "100px");
+      const shifted = getComputedStyle(document.body).paddingBottom;
+      root.style.removeProperty("--mobile-toc-offset-y");
+      return { before, shifted };
+    });
+    tap("the body padding does not follow the pill offset", padding.before === padding.shifted, JSON.stringify(padding));
+
+    const focused = await page.evaluate(() => {
+      document.documentElement.style.removeProperty("scroll-padding-bottom");
       const focusable = [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")].filter(
         (el) =>
           el.tabIndex >= 0 &&
           !el.closest(".mobile-toc-pill, .mobile-toc-sheet") &&
           el.getClientRects().length > 0,
       );
-      focusable[focusable.length - 1].focus();
+      const last = focusable[focusable.length - 1];
+      last?.focus();
+      return !!last && document.activeElement === last;
     });
+    tap("the last focusable element takes focus", focused);
+    if (!focused) return;
     await frames(page, 20);
     const state = await page.evaluate(() => {
       const last = document.activeElement;

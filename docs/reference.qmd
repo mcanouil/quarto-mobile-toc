@@ -67,8 +67,8 @@ The script sets four more properties on `:root`: `--mobile-toc-offset-x`, `--mob
 The script owns them, and removes them when the button goes away.
 Do not set them.
 The stylesheet also sets `--mobile-toc-clearance` on `:root` while the button shows.
-It is the space that the button takes at the bottom of the screen.
-The page uses it as bottom scroll padding and as bottom padding of `body`, so that the last element of the page can scroll above the button.
+It is the space that the button takes at the bottom of the screen, without the zoom offset.
+The page uses it for the bottom scroll padding and the bottom padding of `body`, so that the last element of the page can scroll above the button.
 Do not set it either.
 
 ::: {.callout-note}
