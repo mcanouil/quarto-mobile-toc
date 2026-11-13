@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.3 (2026-11-13)
+
 ### Bug Fixes
 
 - fix: Focus the heading of a contents link whose id holds a stray percent sign. (#14)
