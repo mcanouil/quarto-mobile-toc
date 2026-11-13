@@ -33,7 +33,6 @@
     if (
       !list ||
       document.getElementById("TOC-body") ||
-      toc.closest("main") ||
       typeof window.HTMLDialogElement?.prototype.showModal !== "function" ||
       list.querySelectorAll("a").length < 2
     ) {
