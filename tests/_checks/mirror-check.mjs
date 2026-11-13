@@ -122,26 +122,22 @@ const assertions = {
     tap("every sheet link gets the probe after a re-clone", recloned.probes);
     tap("last sheet link is current after a re-clone", recloned.last && recloned.count === 1);
 
-    const hiddenHref = await page.evaluate(() => {
-      const item = document.querySelector("#TOC li");
-      item.hidden = true;
-      return item.querySelector("a").getAttribute("href");
-    });
-    await frames(page, 3);
-    const sheetItem = (href) =>
-      page.evaluate((h) => {
+    const hiddenHref = await page.evaluate(() => document.querySelector("#TOC li a").getAttribute("href"));
+    for (const hide of [true, false]) {
+      await page.evaluate((value) => {
+        document.querySelector("#TOC li").hidden = value;
+      }, hide);
+      await frames(page, 3);
+      const state = await page.evaluate((h) => {
         const item = document.querySelector(`#mobile-toc-sheet a[href="${h}"]`).closest("li");
         return { hidden: item.hidden, display: getComputedStyle(item).display };
-      }, href);
-    const hidden = await sheetItem(hiddenHref);
-    tap("sheet entry is hidden when its original is hidden", hidden.hidden && hidden.display === "none", JSON.stringify(hidden));
-
-    await page.evaluate(() => {
-      document.querySelector("#TOC li").hidden = false;
-    });
-    await frames(page, 3);
-    const shown = await sheetItem(hiddenHref);
-    tap("sheet entry is shown again when its original is shown", !shown.hidden && shown.display !== "none", JSON.stringify(shown));
+      }, hiddenHref);
+      tap(
+        `sheet entry is ${hide ? "hidden" : "shown"} when its original is ${hide ? "hidden" : "shown"}`,
+        state.hidden === hide && (state.display === "none") === hide,
+        JSON.stringify(state),
+      );
+    }
 
     await page.evaluate(() => {
       window.__swaps = 0;

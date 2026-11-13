@@ -90,16 +90,18 @@
         const active = copy.querySelectorAll("a.active");
         active[active.length - 1]?.setAttribute("aria-current", "location");
       };
+      const MIRRORED = ["class", "hidden"];
       const mirrorState = () => {
         const selector = "ul, li, a";
         const source = list.querySelectorAll(selector);
         const target = copy.querySelectorAll(selector);
         source.forEach((el, index) => {
-          const twin = target[index];
-          if (twin.className !== el.className) twin.className = el.className;
-          const hidden = el.getAttribute("hidden");
-          if (hidden === null) twin.removeAttribute("hidden");
-          else if (twin.getAttribute("hidden") !== hidden) twin.setAttribute("hidden", hidden);
+          for (const name of MIRRORED) {
+            const value = el.getAttribute(name);
+            if (target[index].getAttribute(name) === value) continue;
+            if (value === null) target[index].removeAttribute(name);
+            else target[index].setAttribute(name, value);
+          }
         });
         markCurrent();
       };
@@ -166,7 +168,7 @@
         subtree: true,
         childList: true,
         attributes: true,
-        attributeFilter: ["class", "hidden"],
+        attributeFilter: MIRRORED,
       });
 
       const pill = document.createElement("button");
