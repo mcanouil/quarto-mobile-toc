@@ -92,6 +92,22 @@ const assertions = {
     const end = await sheetState();
     tap("every sheet link is visible after a scroll", end.hiddenLinks.length === 0, JSON.stringify(end));
     tap("no sheet list keeps a collapse class after a scroll", end.collapsedLists === 0, JSON.stringify(end));
+
+    await page.evaluate(() => {
+      const list = document.querySelector("#TOC ul ul");
+      list.classList.add("collapsing");
+      list.style.height = "0px";
+      list.querySelector("a").append(document.createElement("span"));
+    });
+    await frames(page, 3);
+    const animated = await page.evaluate(() => {
+      const sheet = document.getElementById("mobile-toc-sheet");
+      sheet.showModal();
+      const lists = [...sheet.querySelectorAll("ul ul")].map((ul) => Math.round(ul.getBoundingClientRect().height));
+      sheet.close();
+      return lists;
+    });
+    tap("a list in a collapse animation keeps its height in the sheet", animated.every((h) => h > 0), JSON.stringify(animated));
   },
 
   async deep(page) {
@@ -116,12 +132,15 @@ const assertions = {
       const key = (ul) => ul.querySelector("a")?.getAttribute("href");
       const visible = (ul) => [...ul.classList].filter((name) => name !== "collapse" && name !== "collapsing").join(" ");
       const original = new Map([...document.querySelectorAll("#TOC ul")].map((ul) => [key(ul), ul]));
-      return [...document.querySelectorAll("#mobile-toc-sheet ul")].map((ul) => ({
-        href: key(ul),
-        sheet: ul.className,
-        original: visible(original.get(key(ul))),
-        collapsed: original.get(key(ul)).classList.contains("collapse"),
-      }));
+      return [...document.querySelectorAll("#mobile-toc-sheet ul")].map((ul) => {
+        const source = original.get(key(ul));
+        return {
+          href: key(ul),
+          sheet: ul.className,
+          original: source ? visible(source) : null,
+          collapsed: !!source?.classList.contains("collapse"),
+        };
+      });
     });
     tap(
       "every sheet list has the class of its original, without collapse",
