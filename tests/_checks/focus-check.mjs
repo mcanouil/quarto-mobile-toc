@@ -274,13 +274,22 @@ const assertions = {
     await page.locator(".mobile-toc-pill").click();
     await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
     await page.locator(`#mobile-toc-sheet a[href="${last}"]`).click();
-    await page.waitForTimeout(1200);
+    const focusedSection = () => page.evaluate(() => document.activeElement?.closest("section")?.id);
+    await page.waitForTimeout(100);
     await page.evaluate(() => {
       location.hash = "#first-section";
     });
     await page.waitForTimeout(300);
-    const sectionId = await page.evaluate(() => document.activeElement?.closest("section")?.id);
-    tap("a later hash change does not focus the heading of a cancelled link", `#${sectionId}` !== last, sectionId);
+    const soon = await focusedSection();
+    tap("another hash change does not focus the heading of a cancelled link", `#${soon}` !== last, soon);
+
+    await page.waitForTimeout(1200);
+    await page.evaluate((hash) => {
+      location.hash = hash;
+    }, last);
+    await page.waitForTimeout(300);
+    const later = await focusedSection();
+    tap("a later change to its hash does not focus the heading of a cancelled link", `#${later}` !== last, later);
   },
 
   async ids(page) {

@@ -174,7 +174,11 @@
         // Another script can cancel the navigation, so stop waiting after a second.
         const pending = new AbortController();
         pendingHash = pending;
-        window.addEventListener("hashchange", focusLater, { once: true, signal: pending.signal });
+        const onHashChange = () => {
+          pending.abort();
+          if (location.hash === link.hash) focusLater();
+        };
+        window.addEventListener("hashchange", onHashChange, { signal: pending.signal });
         setTimeout(() => pending.abort(), 1000);
       });
 
