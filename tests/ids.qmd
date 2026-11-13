@@ -1,0 +1,39 @@
+---
+title: "Mobile TOC heading ids page"
+format: html
+toc: true
+_quarto:
+  tests:
+    html:
+      noErrors: default
+      printsMessage:
+        level: WARN
+        regex: "Invalid URI '#sale-50%zz'"
+    run:
+      extension-test:
+        check: node _checks/focus-check.mjs "$EXTENSION_TEST_OUTPUT" ids
+---
+
+## First section
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Sale {id="sale-50%zz"}
+
+Prices drop by half on Fridays.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::
+
+## Café {id="café"}
+
+The café opens at eight.
+
+::: {style="height: 60vh"}
+Spacer so that the page scrolls.
+:::

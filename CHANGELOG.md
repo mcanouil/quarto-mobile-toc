@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+- fix: Focus the heading of a contents link whose id holds a stray percent sign. (#14)
 - fix: List every contents entry in the sheet, including those the side table of contents collapses. (#17)
 - fix: Keep the last focused element at the end of the page clear of the contents button. (#18)
 
