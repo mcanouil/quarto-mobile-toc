@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.2 (2026-11-13)
+
 ### Bug Fixes
 
 - fix: Hide contents entries in the sheet when the page hides them. (#12)
