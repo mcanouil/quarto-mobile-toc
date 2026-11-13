@@ -151,6 +151,7 @@
           event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom
         );
       };
+      let pendingHash = null;
       sheet.addEventListener("click", (event) => {
         if (onBackdrop(event)) {
           sheet.close();
@@ -161,7 +162,24 @@
         sheet.close();
         if (!isPlainSamePageClick(event, link)) return;
         const id = targetId(link.hash);
-        if (id !== null) requestAnimationFrame(() => focusHeading(id));
+        if (id === null) return;
+        // Firefox runs the fragment navigation after the next frame, and it blurs a heading focused before.
+        // Focus after the hash changes, or after the frame and its tasks when the hash stays the same.
+        const focusLater = () => setTimeout(() => focusHeading(id), 0);
+        pendingHash?.abort();
+        if (link.hash === location.hash) {
+          requestAnimationFrame(focusLater);
+          return;
+        }
+        // Another script can cancel the navigation, so stop waiting after a second.
+        const pending = new AbortController();
+        pendingHash = pending;
+        const onHashChange = () => {
+          pending.abort();
+          if (location.hash === link.hash) focusLater();
+        };
+        window.addEventListener("hashchange", onHashChange, { signal: pending.signal });
+        setTimeout(() => pending.abort(), 1000);
       });
 
       // Other scripts may add children inside TOC links, so a copy paired by position can drift.
@@ -273,6 +291,7 @@
 
       return () => {
         listeners.abort();
+        pendingHash?.abort();
         pillObserver.disconnect();
         cancelAnimationFrame(placeFrame);
         area?.remove();

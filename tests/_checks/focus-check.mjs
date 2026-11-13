@@ -241,6 +241,60 @@ const assertions = {
     tap("tapping a link brings the heading into view", touched.visible, `${touchHref} top ${touched.top}`);
   },
 
+  async "repeat"(page) {
+    const last = await page.evaluate(() => {
+      const links = document.querySelectorAll("#TOC a");
+      return links[links.length - 1].getAttribute("href");
+    });
+    for (const attempt of ["first", "repeat"]) {
+      await page.locator(".mobile-toc-pill").click();
+      await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
+      await page.locator(`#mobile-toc-sheet a[href="${last}"]`).click();
+      await page.waitForTimeout(300);
+      const focused = await page.evaluate(() => ({
+        tag: document.activeElement?.tagName,
+        sectionId: document.activeElement?.closest("section")?.id,
+      }));
+      tap(
+        `${attempt} click on the last link focuses its heading`,
+        /^H[1-6]$/.test(focused.tag) && `#${focused.sectionId}` === last,
+        JSON.stringify(focused),
+      );
+    }
+  },
+
+  async cancelled(page) {
+    const last = await page.evaluate(() => {
+      document.addEventListener("click", (event) => {
+        if (event.target.closest("#mobile-toc-sheet a")) event.preventDefault();
+      });
+      const links = document.querySelectorAll("#TOC a");
+      return links[links.length - 1].getAttribute("href");
+    });
+    await page.locator(".mobile-toc-pill").click();
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
+    await page.locator(`#mobile-toc-sheet a[href="${last}"]`).click();
+    const focusedSection = () => page.evaluate(() => document.activeElement?.closest("section")?.id);
+    await page.waitForTimeout(100);
+    await page.evaluate(() => {
+      location.hash = "#first-section";
+    });
+    await page.waitForTimeout(300);
+    const soon = await focusedSection();
+    tap("another hash change does not focus the heading of a cancelled link", `#${soon}` !== last, soon);
+
+    await page.locator(".mobile-toc-pill").click();
+    await page.waitForFunction(() => document.getElementById("mobile-toc-sheet").matches("[open]"));
+    await page.locator(`#mobile-toc-sheet a[href="${last}"]`).click();
+    await page.waitForTimeout(1200);
+    await page.evaluate((hash) => {
+      location.hash = hash;
+    }, last);
+    await page.waitForTimeout(300);
+    const later = await focusedSection();
+    tap("a later change to its hash does not focus the heading of a cancelled link", `#${later}` !== last, later);
+  },
+
   async ids(page) {
     for (const id of ["sale-50%zz", "café"]) {
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -272,9 +326,12 @@ const assertions = {
   },
 };
 
+assertions["repeat-firefox"] = assertions.repeat;
+
 const errors = [];
 const { page, close } = await openPage(htmlPath, {
   hideNativePill: true,
+  browser: fixture.endsWith("-firefox") ? "firefox" : "chromium",
   beforeLoad: (target) => target.on("pageerror", (error) => errors.push(error)),
 });
 try {
