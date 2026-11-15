@@ -79,6 +79,25 @@ const assertions = {
     });
     tap("search overlay covers the pill", covered.inViewport && !covered.inside, JSON.stringify(covered));
   },
+
+  async "page-end"(page) {
+    for (const width of [320, 360, 375]) {
+      await page.setViewportSize({ width, height: 640 });
+      await page.evaluate(() => scrollTo(0, 0));
+      await frames(page, 5);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+      await frames(page, 5);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight - 40));
+      await page.waitForFunction(() => getComputedStyle(document.querySelector("#quarto-back-to-top")).display !== "none");
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+      await frames(page, 5);
+      const { top, next } = await page.evaluate(() => {
+        const rect = (selector) => document.querySelector(selector).getBoundingClientRect().toJSON();
+        return { top: rect("#quarto-back-to-top"), next: rect(".nav-page-next a") };
+      });
+      tap(`back-to-top does not cover the next page link at ${width} px`, !intersect(top, next), JSON.stringify({ top, next }));
+    }
+  },
 };
 
 const run = assertions[fixture];

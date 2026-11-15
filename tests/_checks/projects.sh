@@ -15,6 +15,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 CHECKS=(
 	"website|index.html|_checks/website-check.mjs website"
 	"website|index.html|_checks/axe-check.mjs website"
+	"website|index.html|_checks/website-check.mjs page-end"
 	"website|overflow.html|_checks/overflow-check.mjs website-overflow"
 	"book|second.html|_checks/structure-check.mjs page"
 	"book|second.html|_checks/focus-check.mjs focus"

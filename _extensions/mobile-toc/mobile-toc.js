@@ -221,11 +221,16 @@
       else document.body.append(pill, sheet);
 
       const root = document.documentElement;
-      const writePillHeight = () => {
+      // Quarto hides back-to-top until the reader scrolls up, so keep the last height it had on screen.
+      const backToTop = document.getElementById("quarto-back-to-top");
+      const writeHeights = () => {
         root.style.setProperty("--mobile-toc-pill-height", `${pill.getBoundingClientRect().height}px`);
+        const backToTopHeight = backToTop?.getBoundingClientRect().height;
+        if (backToTopHeight > 0) root.style.setProperty("--mobile-toc-back-to-top-height", `${backToTopHeight}px`);
       };
-      const pillObserver = new ResizeObserver(writePillHeight);
-      pillObserver.observe(pill);
+      const heightObserver = new ResizeObserver(writeHeights);
+      heightObserver.observe(pill);
+      if (backToTop) heightObserver.observe(backToTop);
 
       // Content wider than the screen widens the layout viewport on a phone,
       // and a fixed element follows its far edge off screen.
@@ -292,10 +297,10 @@
       return () => {
         listeners.abort();
         pendingHash?.abort();
-        pillObserver.disconnect();
+        heightObserver.disconnect();
         cancelAnimationFrame(placeFrame);
         area?.remove();
-        ["pill-height", "offset-x", "offset-y", "offset-left"].forEach((name) =>
+        ["pill-height", "back-to-top-height", "offset-x", "offset-y", "offset-left"].forEach((name) =>
           root.style.removeProperty(`--mobile-toc-${name}`),
         );
         observer.disconnect();
