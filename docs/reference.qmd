@@ -71,6 +71,7 @@ It is the space that the button takes at the bottom of the screen, without the z
 The page uses it for the bottom scroll padding and the bottom padding of `body`, so that the last element of the page can scroll above the button.
 If the page has the Quarto back-to-top button, the bottom padding of `body` also gives space for that button.
 As a result, the back-to-top button does not cover the last element of the page.
+The bottom padding of `body` applies to the screen only, so a printed page has no extra space at its end.
 Do not set it either.
 
 ::: {.callout-note}
