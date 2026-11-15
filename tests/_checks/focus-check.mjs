@@ -353,11 +353,16 @@ const assertions = {
     tap("widening with the pill focused moves focus to a visible TOC link", fromPill.ok, fromPill.label);
 
     await resize(narrow);
-    await page.evaluate(() => document.querySelector("main a[href]").focus());
-    const before = await page.evaluate(() => document.activeElement.outerHTML);
+    const placed = await page.evaluate(() => {
+      const link = document.querySelector("main p a[href]");
+      link?.setAttribute("data-focus-probe", "");
+      link?.focus();
+      return !!link && document.activeElement === link;
+    });
+    tap("a link in the content takes focus before widening", placed);
     await resize(wide);
-    const after = await page.evaluate(() => document.activeElement.outerHTML);
-    tap("widening leaves focus elsewhere in place", before === after, after);
+    const kept = await page.evaluate(() => document.activeElement?.hasAttribute("data-focus-probe"));
+    tap("widening leaves focus elsewhere in place", kept);
   },
 };
 
