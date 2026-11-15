@@ -324,6 +324,41 @@ const assertions = {
     const own = errors.filter((error) => error.stack?.includes("mobile-toc.js"));
     tap("mobile-toc raised no page error", own.length === 0, own.map((error) => error.message).join("; "));
   },
+
+  async breakpoint(page) {
+    const wide = { width: 900, height: 667 };
+    const narrow = page.viewportSize();
+    const focusInToc = () =>
+      page.evaluate(() => {
+        const active = document.activeElement;
+        return {
+          ok: active?.tagName === "A" && !!active.closest("nav#TOC") && active.checkVisibility(),
+          label: `${active?.tagName}${active?.id ? `#${active.id}` : ""}`,
+        };
+      });
+    const resize = async (size) => {
+      await page.setViewportSize(size);
+      await frames(page, 2);
+    };
+
+    await openWithKeyboard(page);
+    await resize(wide);
+    const fromSheet = await focusInToc();
+    tap("widening with the sheet open moves focus to a visible TOC link", fromSheet.ok, fromSheet.label);
+
+    await resize(narrow);
+    await page.locator(".mobile-toc-pill").focus();
+    await resize(wide);
+    const fromPill = await focusInToc();
+    tap("widening with the pill focused moves focus to a visible TOC link", fromPill.ok, fromPill.label);
+
+    await resize(narrow);
+    await page.evaluate(() => document.querySelector("main a[href]").focus());
+    const before = await page.evaluate(() => document.activeElement.outerHTML);
+    await resize(wide);
+    const after = await page.evaluate(() => document.activeElement.outerHTML);
+    tap("widening leaves focus elsewhere in place", before === after, after);
+  },
 };
 
 assertions["repeat-firefox"] = assertions.repeat;
