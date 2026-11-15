@@ -79,6 +79,8 @@ const assertions = {
       [".mobile-toc-pill", ".mobile-toc-sheet"].map((s) => getComputedStyle(document.querySelector(s)).display),
     );
     tap("pill and sheet are hidden in print", displays.every((d) => d === "none"), displays.join(", "));
+    const printPadding = await page.evaluate(() => getComputedStyle(document.body).paddingBottom);
+    tap("body has no pill clearance in print", printPadding === "0px", printPadding);
     await page.emulateMedia({ media: "screen" });
   },
 
