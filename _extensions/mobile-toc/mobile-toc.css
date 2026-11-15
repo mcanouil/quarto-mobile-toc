@@ -61,7 +61,7 @@
 
 /* Scroll padding cannot lift the end of the page above the pill, so the page gets room to scroll further.
    The zoom offset stays out of it, because it changes on every frame of a pan and would resize the page.
-   Print hides the pill, so the room applies to the screen only. */
+   Print hides the pill but keeps it in the page, so only the screen query stops the room from printing. */
 @media screen {
   body:has(.mobile-toc-pill) {
     padding-bottom: var(--mobile-toc-clearance);
