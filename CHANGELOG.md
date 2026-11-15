@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- fix: Keep focus on the side table of contents when the screen widens past the breakpoint. (#20)
+
 ## 0.2.3 (2026-11-13)
 
 ### Bug Fixes

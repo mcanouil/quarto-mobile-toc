@@ -7,12 +7,12 @@ _quarto:
   tests:
     run:
       extension-test:
-        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" left-toc
+        check: node _checks/structure-check.mjs "$EXTENSION_TEST_OUTPUT" left-toc && node _checks/focus-check.mjs "$EXTENSION_TEST_OUTPUT" breakpoint
 ---
 
 ## One
 
-Text.
+Text with [a link to the second section](#two).
 
 ## Two
 

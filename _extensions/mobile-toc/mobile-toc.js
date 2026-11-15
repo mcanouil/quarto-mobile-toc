@@ -289,7 +289,18 @@
         if (document.activeElement === document.body || sheet.contains(document.activeElement)) pill.focus();
       });
 
+      // When the screen widens, the side table of contents shows again and the pill goes away.
+      // Move focus that was on the pill or in the sheet to the current link there, so it does not drop to the body.
+      const handOverFocus = () => {
+        const active = list.querySelectorAll("a.active");
+        for (const link of [active[active.length - 1], list.querySelector("a")]) {
+          link?.focus();
+          if (document.activeElement === link) return;
+        }
+      };
+
       return () => {
+        const hadFocus = document.activeElement === pill || sheet.contains(document.activeElement);
         listeners.abort();
         pendingHash?.abort();
         pillObserver.disconnect();
@@ -303,6 +314,7 @@
         if (sheet.open) sheet.close();
         pill.remove();
         sheet.remove();
+        if (hadFocus) handOverFocus();
       };
     };
 
