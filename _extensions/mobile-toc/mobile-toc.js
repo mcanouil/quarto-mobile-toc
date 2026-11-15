@@ -223,12 +223,13 @@
       const root = document.documentElement;
       // Quarto hides back-to-top until the reader scrolls up, so keep the last height it had on screen.
       const backToTop = document.getElementById("quarto-back-to-top");
-      const writeHeights = () => {
-        root.style.setProperty("--mobile-toc-pill-height", `${pill.getBoundingClientRect().height}px`);
-        const backToTopHeight = backToTop?.getBoundingClientRect().height;
-        if (backToTopHeight > 0) root.style.setProperty("--mobile-toc-back-to-top-height", `${backToTopHeight}px`);
-      };
-      const heightObserver = new ResizeObserver(writeHeights);
+      const heightObserver = new ResizeObserver((entries) => {
+        for (const { target } of entries) {
+          const height = target.getBoundingClientRect().height;
+          if (target === pill) root.style.setProperty("--mobile-toc-pill-height", `${height}px`);
+          else if (height > 0) root.style.setProperty("--mobile-toc-back-to-top-height", `${height}px`);
+        }
+      });
       heightObserver.observe(pill);
       if (backToTop) heightObserver.observe(backToTop);
 
