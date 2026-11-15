@@ -1,5 +1,5 @@
 ---
-title: "Other"
+title: "Other page with a longer title"
 _quarto:
   tests:
     run:

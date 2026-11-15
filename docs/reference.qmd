@@ -63,12 +63,14 @@ format:
 
 To move the button away from another element, such as a chat bubble, change the two inset properties.
 
-The script sets four more properties on `:root`: `--mobile-toc-offset-x`, `--mobile-toc-offset-y`, `--mobile-toc-offset-left` and `--mobile-toc-pill-height`.
+The script sets five more properties on `:root`: `--mobile-toc-offset-x`, `--mobile-toc-offset-y`, `--mobile-toc-offset-left`, `--mobile-toc-pill-height` and `--mobile-toc-back-to-top-height`.
 The script owns them, and removes them when the button goes away.
 Do not set them.
 The stylesheet also sets `--mobile-toc-clearance` on `:root` while the button shows.
 It is the space that the button takes at the bottom of the screen, without the zoom offset.
 The page uses it for the bottom scroll padding and the bottom padding of `body`, so that the last element of the page can scroll above the button.
+If the page has the Quarto back-to-top button, the bottom padding of `body` also gives space for that button.
+As a result, the back-to-top button does not cover the last element of the page.
 Do not set it either.
 
 ::: {.callout-note}

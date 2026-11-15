@@ -79,6 +79,36 @@ const assertions = {
     });
     tap("search overlay covers the pill", covered.inViewport && !covered.inside, JSON.stringify(covered));
   },
+
+  async "page-end"(page) {
+    // With a larger body text, as some themes set, back-to-top is taller than the 2.5rem fallback.
+    // Only its measured height then keeps it clear of the link.
+    const cases = [
+      { width: 320, textSize: "" },
+      { width: 360, textSize: "" },
+      { width: 375, textSize: "" },
+      { width: 320, textSize: "1.5rem" },
+    ];
+    for (const { width, textSize } of cases) {
+      await page.setViewportSize({ width, height: 640 });
+      await page.evaluate((size) => {
+        document.body.style.fontSize = size;
+        scrollTo(0, 0);
+      }, textSize);
+      await frames(page, 5);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+      await frames(page, 5);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight - 40));
+      await page.waitForFunction(() => getComputedStyle(document.querySelector("#quarto-back-to-top")).display !== "none");
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+      await frames(page, 5);
+      const { top, next } = await page.evaluate(() => {
+        const rect = (selector) => document.querySelector(selector).getBoundingClientRect().toJSON();
+        return { top: rect("#quarto-back-to-top"), next: rect(".nav-page-next a") };
+      });
+      tap(`back-to-top does not cover the next page link at ${width} px${textSize ? ` and ${textSize} body text` : ""}`, !intersect(top, next), JSON.stringify({ top, next }));
+    }
+  },
 };
 
 const run = assertions[fixture];

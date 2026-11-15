@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - fix: Keep focus on the side table of contents when the screen widens past the breakpoint. (#20)
+- fix: Keep the back to top button clear of the page navigation at the end of a page. (#21)
 
 ## 0.2.3 (2026-11-13)
 
