@@ -297,12 +297,6 @@
           link?.focus();
           if (document.activeElement === link) return;
         }
-        if (!main) return;
-        if (!main.hasAttribute("tabindex")) {
-          main.setAttribute("tabindex", "-1");
-          main.addEventListener("blur", () => main.removeAttribute("tabindex"), { once: true });
-        }
-        main.focus({ preventScroll: true });
       };
 
       return () => {
