@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.5 (2026-11-15)
+
 ### Bug Fixes
 
 - fix: Drop the room left for the contents button at the end of the page when it is printed. (#23)
