@@ -96,9 +96,8 @@ const assertions = {
         scrollTo(0, 0);
       }, textSize);
       await frames(page, 5);
+      // Quarto shows back-to-top at the end of the page. The extension measures it then, and the page grows, so scroll to the new end.
       await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-      await frames(page, 5);
-      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight - 40));
       await page.waitForFunction(() => getComputedStyle(document.querySelector("#quarto-back-to-top")).display !== "none");
       await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
       await frames(page, 5);
